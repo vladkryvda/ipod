@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>iPod OLED</title>
+    
+    <style>
+        /* Обнулення та заборона виділення тексту */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        /* Абсолютно чорний фон для OLED (вимикає пікселі) */
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: 10vh; /* Відступ від "чубчика" iPhone */
+        }
+
+        /* ЕКРАН iPOD */
+        .ipod-screen-container {
+            width: 85%;
+            max-width: 350px;
+            height: 40vh;
+            background: #e4e6eb; /* Світло-сірий екран */
+            border-radius: 12px;
+            border: 4px solid #1a1a1a;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            overflow: hidden;
+            position: relative;
+            color: #000;
+        }
+
+        /* Верхній статус-бар екрана */
+        .screen-header {
+            background: linear-gradient(to bottom, #fcfcfc, #cfd1d6);
+            height: 30px;
+            border-bottom: 2px solid #555;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* Вигляд 1: Меню (Список) */
+        .view-menu {
+            height: calc(100% - 30px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            padding: 8px 12px;
+            font-size: 16px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* Активний пункт меню */
+        .menu-item.active {
+            background: linear-gradient(to bottom, #4b92db, #1459a9);
+            color: white;
+        }
+
+        /* Вигляд 2: Плеєр (Now Playing) */
+        .view-now-playing {
+            height: calc(100% - 30px);
+            display: none; /* Приховано за замовчуванням */
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background: #e4e6eb;
+        }
+
+        .album-art {
+            width: 120px;
+            height: 120px;
+            border: 2px solid #333;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+
+        .np-title { font-weight: bold; font-size: 16px; text-align: center; margin-bottom: 5px; }
+        .np-artist { font-size: 14px; color: #555; text-align: center; }
+
+        /* КОЛЕСО CLICK WHEEL */
+        .wheel-container {
+            width: 280px;
+            height: 280px;
+            background: #1c1c1c; /* Темно-сірий матовий */
+            border-radius: 50%;
+            margin-top: 6vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* Невеликий об'єм для колеса */
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 5px 15px rgba(0,0,0,0.8);
+            touch-action: none; /* Забороняє скрол сторінки при свайпі по колесу */
+        }
+
+        /* Тексти на колесі */
+        .wheel-label {
+            position: absolute;
+            color: #888;
+            font-size: 14px;
+            font-weight: bold;
+            pointer-events: none;
+        }
+        .label-menu { top: 20px; }
+        .label-play { bottom: 20px; font-size: 18px; }
+        .label-prev { left: 20px; font-size: 18px; }
+        .label-next { right: 20px; font-size: 18px; }
+
+        /* Центральна кнопка (Select) */
+        .center-button {
+            width: 100px;
+            height: 100px;
+            background: #000000; /* Глибокий чорний центр */
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .center-button:active {
+            background: #0a0a0a;
+        }
+
+        /* Схований плеєр YouTube */
+        #youtube-player {
+            position: absolute;
+            width: 1px; height: 1px;
+            opacity: 0; pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="youtube-player"></div>
+
+    <div class="ipod-screen-container">
+        <div class="screen-header">
+            <span id="header-title">Music</span>
+            <span>🔋</span>
+        </div>
+
+        <div class="view-menu" id="view-menu">
+            </div>
+
+        <div class="view-now-playing" id="view-now-playing">
+            <img src="" id="np-cover" class="album-art" alt="Cover">
+            <div class="np-title" id="np-title">Назва Треку</div>
+            <div class="np-artist" id="np-artist">Артист</div>
+        </div>
+    </div>
+
+    <div class="wheel-container" id="wheel">
+        <div class="wheel-label label-menu" id="btn-menu">MENU</div>
+        <div class="wheel-label label-prev">|◁</div>
+        <div class="wheel-label label-next">▷|</div>
+        <div class="wheel-label label-play" id="btn-playpause">▶||</div>
+        
+        <div class="center-button" id="btn-center"></div>
+    </div>
+
+    <script>
+        // 1. ТВОЯ БАЗА ТРЕКІВ (Встав свої ID)
+        const myTracks = [
+            { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley' },
+            { id: 'jfKfPfyJRdk', title: 'Lofi Hip Hop Radio', artist: 'Lofi Girl' },
+            { id: '9XAS9G7m0VE', title: 'Interstellar Theme', artist: 'Hans Zimmer' },
+            { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' },
+            { id: '5qap5aO4i9A', title: 'Relaxing Music', artist: 'ChilledCow' }
+        ];
+
+        // Змінні стану
+        let currentView = 'menu'; // 'menu' або 'nowPlaying'
+        let selectedIndex = 0;    // Який трек підсвічено в меню
+        let playingIndex = null;  // Який трек зараз грає
+        let player;
+        let wakeLock = null;
+
+        // 2. ІНІЦІАЛІЗАЦІЯ YOUTUBE API
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        document.head.appendChild(tag);
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('youtube-player', {
+                height: '1', width: '1', videoId: '',
+                playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
+                events: { 'onStateChange': onPlayerStateChange }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.ENDED) {
+                // Автопереключення
+                playingIndex = (playingIndex + 1) % myTracks.length;
+                playTrack(playingIndex);
+            }
+        }
+
+        // 3. РЕНДЕР МЕНЮ
+        const menuContainer = document.getElementById('view-menu');
+        function renderMenu() {
+            menuContainer.innerHTML = '';
+            myTracks.forEach((track, index) => {
+                const div = document.createElement('div');
+                div.className = `menu-item ${index === selectedIndex ? 'active' : ''}`;
+                div.textContent = track.title;
+                menuContainer.appendChild(div);
+            });
+            
+            // Прокрутка меню, щоб активний елемент завжди був у полі зору
+            const activeEl = document.querySelector('.menu-item.active');
+            if (activeEl) {
+                activeEl.scrollIntoView({ block: 'nearest' });
+            }
+        }
+        renderMenu();
+
+        // 4. ЗВУК "КЛІКУ" iPOD ТА WAKE LOCK
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playClickSound() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            // Синтезуємо короткий глухий звук "тік"
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime); // Висота звуку
+            osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.05);
+            
+            gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+
+            // Запит на те, щоб екран не гас (підтримується на нових iOS/Android)
+            if ('wakeLock' in navigator && wakeLock === null) {
+                navigator.wakeLock.request('screen').then(lock => { wakeLock = lock; }).catch(()=>{});
+            }
+        }
+
+        // 5. ЛОГІКА CLICK WHEEL (Обертання)
+        const wheel = document.getElementById('wheel');
+        let lastAngle = 0;
+        let angleAccumulator = 0;
+
+        wheel.addEventListener('touchstart', (e) => {
+            const rect = wheel.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const x = e.touches[0].clientX - centerX;
+            const y = e.touches[0].clientY - centerY;
+            lastAngle = Math.atan2(y, x) * (180 / Math.PI);
+        });
+
+        wheel.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Запобігає системним жестам скролу
+            
+            const rect = wheel.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const x = e.touches[0].clientX - centerX;
+            const y = e.touches[0].clientY - centerY;
+            let currentAngle = Math.atan2(y, x) * (180 / Math.PI);
+
+            // Вираховуємо різницю кута
+            let delta = currentAngle - lastAngle;
+            // Корекція при переході через межу -180 та 180 градусів
+            if (delta > 180) delta -= 360;
+            if (delta < -180) delta += 360;
+
+            angleAccumulator += delta;
+            lastAngle = currentAngle;
+
+            // Кожні 20 градусів повороту = 1 крок в меню
+            if (Math.abs(angleAccumulator) > 20) {
+                if (currentView === 'menu') {
+                    if (angleAccumulator > 0) {
+                        // Крутимо за годинниковою -> вниз
+                        selectedIndex = Math.min(selectedIndex + 1, myTracks.length - 1);
+                    } else {
+                        // Крутимо проти годинникової -> вгору
+                        selectedIndex = Math.max(selectedIndex - 1, 0);
+                    }
+                    renderMenu();
+                    playClickSound(); // Звук кліку!
+                }
+                angleAccumulator = 0; // Скидаємо акумулятор після кроку
+            }
+        });
+
+        // 6. ЛОГІКА КНОПОК
+        const viewMenu = document.getElementById('view-menu');
+        const viewNowPlaying = document.getElementById('view-now-playing');
+        const headerTitle = document.getElementById('header-title');
+
+        // Кнопка Select (Центр)
+        document.getElementById('btn-center').addEventListener('click', () => {
+            playClickSound();
+            if (currentView === 'menu') {
+                playTrack(selectedIndex);
+            }
+        });
+
+        // Кнопка Menu (Повернення до списку)
+        document.getElementById('wheel').addEventListener('click', (e) => {
+            // Визначаємо приблизну зону кліку. Меню - це верхня чверть колеса.
+            const rect = wheel.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            
+            // Якщо клік у верхній зоні колеса (кнопка MENU)
+            if (y < 60) {
+                playClickSound();
+                currentView = 'menu';
+                viewMenu.style.display = 'flex';
+                viewNowPlaying.style.display = 'none';
+                headerTitle.textContent = 'Music';
+            }
+            
+            // Якщо клік у нижній зоні (Play/Pause)
+            if (y > rect.height - 60 && currentPlayingId) {
+                playClickSound();
+                if (player) {
+                    const state = player.getPlayerState();
+                    if (state === YT.PlayerState.PLAYING) player.pauseVideo();
+                    else player.playVideo();
+                }
+            }
+        });
+
+        // 7. ВІДТВОРЕННЯ
+        let currentPlayingId = null;
+
+        function playTrack(index) {
+            if (!player) return;
+            const track = myTracks[index];
+            playingIndex = index;
+            currentPlayingId = track.id;
+
+            // Зміна UI
+            currentView = 'nowPlaying';
+            viewMenu.style.display = 'none';
+            viewNowPlaying.style.display = 'flex';
+            headerTitle.textContent = 'Now Playing';
+
+            document.getElementById('np-title').textContent = track.title;
+            document.getElementById('np-artist').textContent = track.artist;
+            document.getElementById('np-cover').src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
+
+            // Запуск відео
+            player.loadVideoById(track.id);
+            player.playVideo();
+        }
+    </script>
+</body>
+</html>
