@@ -2,16 +2,12 @@
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
-    <!-- PWA ТА iOS НАЛАШТУВАННЯ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="iPod">
     
-    <!-- ВБУДОВАНИЙ MANIFEST.JSON ДЛЯ PWA -->
     <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22iPod%20Classic%22%2C%22short_name%22%3A%22iPod%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23000000%22%2C%22theme_color%22%3A%22%23000000%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%20100%20100'%3E%3Crect%20width%3D'100'%20height%3D'100'%20fill%3D'black'%2F%3E%3Ctext%20y%3D'75'%20x%3D'15'%20font-size%3D'75'%20fill%3D'white'%3E%EF%A3%BF%3C%2Ftext%3E%3C%2Fsvg%3E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
-    
-    <!-- ІКОНКА НА РОБОЧОМУ СТОЛІ -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2215%22 font-size=%2275%22 fill=%22white%22></text></svg>">
     
     <title>iPod Classic</title>
@@ -19,26 +15,26 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
 
-        /* ТЕМНА ТЕМА ПО ЗАМОВЧУВАННЮ (OLED Black) */
         body {
-            background-color: #000000; /* ЧИСТИЙ ЧОРНИЙ ДЛЯ OLED */
+            background-color: #000000; 
             color: #fff; font-family: -apple-system, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-            padding-top: calc(env(safe-area-inset-top) + 20px);
-            padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            gap: 6vh; /* Ідеальна симетрична відстань між екраном і колесом */
             transition: background 0.5s, color 0.5s;
             overscroll-behavior-y: none; -webkit-touch-callout: none;
         }
 
         #youtube-player { position: absolute; width: 10px; height: 10px; top: 0; left: 0; opacity: 0.01; pointer-events: none; z-index: -1; }
 
-        /* ЕКРАН */
+        /* ЕКРАН (Резиновий розмір) */
         .ipod-screen-container {
-            width: 88%; max-width: 320px; aspect-ratio: 4 / 3.6; 
+            width: 88%; max-width: 340px; aspect-ratio: 4 / 3.6; 
             background: #e4e6eb; border-radius: 6px; 
-            border: 4px solid #1a1a1c; /* Темна рамка для злиття з OLED */
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(255,255,255,0.05); /* Легкий відблиск екрана */
+            border: 4px solid #1a1a1c; 
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(255,255,255,0.05);
             overflow: hidden; position: relative; color: #000; z-index: 2;
             display: flex; flex-direction: column; touch-action: none; transition: all 0.3s;
         }
@@ -79,14 +75,13 @@
         .np-title { font-weight: 700; font-size: 15px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .np-artist { font-size: 13px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* ПРОГРЕС БАР (ТАЙМЛАЙН) */
+        /* ПРОГРЕС БАР */
         .progress-container { width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333; position: relative; }
         .progress-bar-outer {
             flex-grow: 1; height: 9px; background: #d1d5db; border: 1px solid #b5b8be;
             border-radius: 4px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2); position: relative;
         }
         .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(to bottom, #529ee6, #165ca8); }
-        
         .progress-container.seek-mode .progress-bar-inner { background: linear-gradient(to bottom, #a3cbf3, #4387d6); }
         .seek-playhead {
             position: absolute; top: -3px; left: 0%; width: 5px; height: 15px;
@@ -95,7 +90,7 @@
         }
         .progress-container.seek-mode .seek-playhead { display: block; }
 
-        /* ПОВЗУНОК ГУЧНОСТІ */
+        /* ГУЧНІСТЬ */
         .volume-overlay {
             position: absolute; bottom: 35px; left: 50%; transform: translateX(-50%);
             width: 80%; background: rgba(255,255,255,0.95); border: 1px solid #aaa;
@@ -107,31 +102,36 @@
         .vol-bar-outer { flex-grow: 1; height: 8px; background: #ccc; border-radius: 4px; overflow: hidden; border: 1px solid #999; }
         .vol-bar-inner { width: 100%; height: 100%; background: linear-gradient(to bottom, #888, #555); }
 
-        /* КОЛЕСО (Покращений матовий пластик для OLED) */
+        /* КОЛЕСО (Повернуто до оригінальних кольорів + Адаптивний розмір) */
         .wheel-container {
-            width: 250px; height: 250px;
-            background: radial-gradient(circle at 50% 50%, #2a2d34 0%, #16181b 80%, #0d0f12 100%);
-            border-radius: 50%; margin-bottom: 30px; 
+            width: min(75vw, 280px); /* Підлаштовується під будь-який телефон */
+            height: min(75vw, 280px); /* Завжди ідеально кругле */
+            /* Твій оригінальний колір: */
+            background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
+            border-radius: 50%; 
             position: relative; display: flex; align-items: center; justify-content: center;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.05), 0 8px 24px rgba(255,255,255,0.03), 0 0 0 1px #111;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
             touch-action: none; z-index: 2; transition: all 0.3s;
         }
         
         .center-button {
-            width: 85px; height: 85px; 
-            background: linear-gradient(to bottom, #1c1e22, #090a0c); /* Легкий блік на кнопці */
+            width: 36%; height: 36%; /* Розмір кнопки залежить від розміру колеса! */
+            /* Твій оригінальний колір: */
+            background: #090a0c; 
             border-radius: 50%; z-index: 10;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 8px rgba(0,0,0,0.8); transition: all 0.3s;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4); transition: all 0.3s;
         }
-        .center-button:active { background: #000; }
+        .center-button:active { background: #111215; }
 
         .wheel-label { position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #8a8e99; fill: #8a8e99; transition: all 0.3s;}
-        .label-menu { top: 18px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
-        .label-play { bottom: 18px; width: 24px; height: 14px; } 
-        .label-prev { left: 18px; width: 18px; height: 16px; }
-        .label-next { right: 18px; width: 18px; height: 16px; }
+        
+        /* Іконки теж підлаштовуються під розмір колеса */
+        .label-menu { top: 10%; font-weight: 700; font-size: min(4vw, 15px); letter-spacing: 0.5px; }
+        .label-play { bottom: 10%; width: min(6.5vw, 24px); } 
+        .label-prev { left: 8%; width: min(5.5vw, 20px); }
+        .label-next { right: 8%; width: min(5.5vw, 20px); }
 
-        /* --- КЛАСИЧНА СВІТЛА ТЕМА (Вмикається класом) --- */
+        /* СВІТЛА ТЕМА */
         body.classic-white-theme {
             background: linear-gradient(135deg, #f0f0f3 0%, #d8d8dd 100%); 
             box-shadow: inset 0 0 50px rgba(0,0,0,0.05);
@@ -299,13 +299,18 @@
 
         let pauseClickCount = 0, pauseClickTimer = null;
         wheel.addEventListener('click', e => {
-            const rect = wheel.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
+            const rect = wheel.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
 
-            if (x < 60 && y > 60 && y < rect.height - 60) { playClickSound(); prevTrack(); return; }
-            if (x > rect.width - 60 && y > 60 && y < rect.height - 60) { playClickSound(); nextTrack(); return; }
-            if (y < 60) { playClickSound(); if (currentView === 'nowPlaying') switchView('menu'); return; }
+            // Зони кліку тепер вираховуються у ВІДСОТКАХ (тому працюють ідеально незалежно від розміру колеса)
+            if (x < w * 0.28 && y > h * 0.25 && y < h * 0.75) { playClickSound(); prevTrack(); return; }
+            if (x > w * 0.72 && y > h * 0.25 && y < h * 0.75) { playClickSound(); nextTrack(); return; }
+            if (y < h * 0.28) { playClickSound(); if (currentView === 'nowPlaying') switchView('menu'); return; }
             
-            if (y > rect.height - 60) {
+            if (y > h * 0.72) {
                 playClickSound(); pauseClickCount++;
                 if (pauseClickTimer) clearTimeout(pauseClickTimer);
                 if (pauseClickCount === 3) {
