@@ -15,16 +15,27 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
 
+        :root {
+            /* 
+               ЦЯ ФОРМУЛА РОБИТЬ ІДЕАЛЬНУ СИМЕТРІЮ:
+               Беремо розмір верхньої чілки (safe-area-inset-top) + 15 пікселів.
+               Використовуємо це значення і для верху, і для низу!
+            */
+            --edge-gap: calc(env(safe-area-inset-top) + 15px);
+        }
+
         body {
             background-color: #000000; 
             color: #fff; font-family: -apple-system, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
             display: flex; flex-direction: column; align-items: center; 
-            justify-content: flex-start; /* Притискає все до верху */
             
-            /* Екран починається РІВНО під чілкою + 12px для естетики рамки */
-            padding-top: calc(env(safe-area-inset-top) + 12px);
-            padding-bottom: env(safe-area-inset-bottom);
+            /* Екран магнітиться до верху, колесо магнітиться до низу */
+            justify-content: space-between; 
+            
+            /* Однаковий відступ від фізичних країв телефону */
+            padding-top: var(--edge-gap);
+            padding-bottom: var(--edge-gap);
             
             transition: background 0.5s, color 0.5s;
             overscroll-behavior-y: none; -webkit-touch-callout: none;
@@ -34,7 +45,7 @@
 
         /* ЕКРАН */
         .ipod-screen-container {
-            width: 90%; max-width: 360px; aspect-ratio: 4 / 3.6; 
+            width: 88%; max-width: 360px; aspect-ratio: 4 / 3.6; 
             background: #e4e6eb; border-radius: 6px; 
             border: 4px solid #1a1a1c; 
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(255,255,255,0.05);
@@ -114,10 +125,7 @@
             position: relative; display: flex; align-items: center; justify-content: center;
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
             touch-action: none; z-index: 2; transition: all 0.3s;
-            
-            /* ЦЕНТРУЄ колесо у вільному просторі під екраном */
-            margin-top: auto; 
-            margin-bottom: auto; 
+            flex-shrink: 0;
         }
         
         .center-button {
@@ -272,140 +280,3 @@
 
         wheel.addEventListener('touchstart', e => lastAngle = getAngle(e));
         wheel.addEventListener('touchmove', e => {
-            e.preventDefault();
-            let currentAngle = getAngle(e), delta = currentAngle - lastAngle;
-            if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
-            angleAccumulator += delta; lastAngle = currentAngle;
-
-            if (Math.abs(angleAccumulator) >= wheelSensitivity) {
-                const steps = Math.floor(Math.abs(angleAccumulator) / wheelSensitivity);
-                const dir = angleAccumulator > 0 ? 1 : -1;
-
-                if (currentView === 'menu') {
-                    const prevIndex = selectedIndex;
-                    selectedIndex = Math.max(0, Math.min(selectedIndex + (dir * steps), myTracks.length - 1));
-                    if (prevIndex !== selectedIndex) { updateSelectionVisuals(); playClickSound(); }
-                } 
-                else if (currentView === 'nowPlaying' && player) {
-                    if (npMode === 'volume') {
-                        currentVolume = Math.max(0, Math.min(100, currentVolume + (dir * steps * 4)));
-                        player.setVolume(currentVolume); 
-                        updateVolumeUI(); showVolumeOverlay(); playClickSound();
-                    } else if (npMode === 'seek') {
-                        let newTime = Math.max(0, Math.min(player.getCurrentTime() + (dir * steps * 5), player.getDuration()));
-                        player.seekTo(newTime, true); updateProgressBar(newTime, player.getDuration()); playClickSound();
-                    }
-                }
-                angleAccumulator = angleAccumulator % wheelSensitivity;
-            }
-        });
-
-        let pauseClickCount = 0, pauseClickTimer = null;
-        wheel.addEventListener('click', e => {
-            const rect = wheel.getBoundingClientRect();
-            const w = rect.width; const h = rect.height;
-            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-
-            if (x < w * 0.28 && y > h * 0.25 && y < h * 0.75) { playClickSound(); prevTrack(); return; }
-            if (x > w * 0.72 && y > h * 0.25 && y < h * 0.75) { playClickSound(); nextTrack(); return; }
-            if (y < h * 0.28) { playClickSound(); if (currentView === 'nowPlaying') switchView('menu'); return; }
-            
-            if (y > h * 0.72) {
-                playClickSound(); pauseClickCount++;
-                if (pauseClickTimer) clearTimeout(pauseClickTimer);
-                if (pauseClickCount === 3) {
-                    document.body.classList.toggle('classic-white-theme'); pauseClickCount = 0; return;
-                }
-                pauseClickTimer = setTimeout(() => {
-                    if (pauseClickCount === 1 && player) {
-                        player.getPlayerState() === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
-                    }
-                    pauseClickCount = 0;
-                }, 350);
-            }
-        });
-
-        document.getElementById('btn-center').addEventListener('click', () => {
-            playClickSound();
-            if (currentView === 'menu' && myTracks[selectedIndex]) {
-                if (playingIndex === selectedIndex) switchView('nowPlaying');
-                else { playingIndex = selectedIndex; playTrack(myTracks[selectedIndex]); }
-            } 
-            else if (currentView === 'nowPlaying') {
-                npMode = (npMode === 'volume') ? 'seek' : 'volume';
-                const progCont = document.getElementById('progress-container');
-                if (npMode === 'seek') {
-                    progCont.classList.add('seek-mode');
-                    document.getElementById('volume-overlay').classList.remove('show');
-                } else {
-                    progCont.classList.remove('seek-mode');
-                    showVolumeOverlay();
-                }
-            }
-        });
-
-        function showVolumeOverlay() {
-            const overlay = document.getElementById('volume-overlay');
-            overlay.classList.add('show');
-            if (volumeHideTimer) clearTimeout(volumeHideTimer);
-            volumeHideTimer = setTimeout(() => { overlay.classList.remove('show'); }, 2000);
-        }
-
-        function updateVolumeUI() { document.getElementById('vol-bar-inner').style.width = currentVolume + '%'; }
-
-        function switchView(view) {
-            currentView = view;
-            if (view === 'menu') {
-                slider.style.transform = 'translateX(0)';
-            } else {
-                slider.style.transform = 'translateX(-50%)';
-                npMode = 'seek';
-                document.getElementById('progress-container').classList.add('seek-mode');
-                document.getElementById('volume-overlay').classList.remove('show');
-            }
-        }
-
-        function playTrack(track) {
-            switchView('nowPlaying');
-            document.getElementById('np-title').textContent = track.title; 
-            document.getElementById('np-artist').textContent = track.artist;
-            const coverUrl = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
-            document.getElementById('np-cover').src = coverUrl;
-            
-            if (player) { player.loadVideoById(track.id); player.playVideo(); }
-
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.metadata = new MediaMetadata({
-                    title: track.title, artist: track.artist, album: 'iPod Classic',
-                    artwork: [{ src: coverUrl, sizes: '480x360', type: 'image/jpeg' }]
-                });
-                navigator.mediaSession.setActionHandler('play', () => { player.playVideo(); if(audioCtx.state==='suspended') audioCtx.resume(); });
-                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
-                navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
-                navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
-            }
-        }
-
-        function nextTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex + 1) % myTracks.length); playTrack(myTracks[playingIndex]); updateSelectionVisuals(); } }
-        function prevTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex - 1 + myTracks.length) % myTracks.length); playTrack(myTracks[playingIndex]); updateSelectionVisuals(); } }
-
-        function startProgressLoop() {
-            progressInterval = setInterval(() => {
-                if (player && currentView === 'nowPlaying' && player.getPlayerState() === YT.PlayerState.PLAYING && npMode !== 'seek') {
-                    updateProgressBar(player.getCurrentTime(), player.getDuration());
-                }
-            }, 500);
-        }
-
-        function updateProgressBar(cur, dur) {
-            if (!dur) return;
-            const percent = (cur / dur) * 100;
-            document.getElementById('track-progress').style.width = percent + '%';
-            document.getElementById('seek-playhead').style.left = percent + '%';
-            document.getElementById('time-current').textContent = formatTime(cur);
-            document.getElementById('time-total').textContent = "-" + formatTime(dur - cur);
-        }
-        const formatTime = t => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
-    </script>
-</body>
-</html>
