@@ -6,11 +6,11 @@
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="iPod ">
+    <meta name="apple-mobile-web-app-title" content="iPod">
     
-    <title> iPod Classic</title>
+    <title>iPod Classic</title>
     
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 background-color=%22black%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2215%22 font-size=%2275%22 fill=%22white%22></text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2215%22 font-size=%2275%22 fill=%22white%22></text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22white%22></text></svg>">
     
     <style>
@@ -22,7 +22,7 @@
             -webkit-user-select: none;
         }
 
-        /* БАЗОВА ТЕМА: OLED ЧОРНИЙ */
+        /* ЦЕНТРОВАНЕ ТІЛО ПЛЕЄРА (ЯК НА GITHUB) */
         body {
             background-color: #000000;
             color: #ffffff;
@@ -33,110 +33,83 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            padding-top: calc(env(safe-area-inset-top) + 15px);
+            justify-content: center; /* Центруємо весь девайс на екрані */
+            padding: 20px 0;
             position: relative;
             transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* КАСТОМНА ТЕМА: SPACE GRAY & CHROME */
         body.aluminum-theme {
             background: linear-gradient(135deg, #2c302e 0%, #4a5154 50%, #23272a 100%);
-            color: #ffffff;
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
 
-        /* ЕКРАН iPOD (Жорстка фіксація висоти, щоб не втискався) */
+        /* КАНOНІЧНИЙ ЕКРАН */
         .ipod-screen-container {
-            width: 90%;
-            max-width: 340px;
-            height: 240px; /* Сувора фіксація висоти екрана */
-            flex-shrink: 0; /* Заборона стискання при додаванні контенту */
+            width: 88%;
+            max-width: 320px;
+            height: 240px; /* Чисті оригінальні пропорції */
+            flex-shrink: 0;
             background: #e4e6eb;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 4px solid #1c1d21;
-            box-shadow: inset 0 3px 10px rgba(0,0,0,0.6), 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(0,0,0,0.3);
             overflow: hidden;
             position: relative;
             color: #000;
-            transition: border-color 0.5s ease, box-shadow 0.5s ease;
             z-index: 2;
         }
 
         body.aluminum-theme .ipod-screen-container {
             border-color: #7f8c8d;
-            box-shadow: 0 0 0 1px #bdc3c7, inset 0 3px 10px rgba(0,0,0,0.4), 0 4px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 1px #bdc3c7, inset 0 2px 5px rgba(0,0,0,0.3), 0 3px 10px rgba(0,0,0,0.4);
         }
 
         .screen-header {
             background: linear-gradient(to bottom, #fcfcfc, #cfd1d6);
-            height: 26px;
-            border-bottom: 2px solid #a6a8ad;
+            height: 24px;
+            border-bottom: 1px solid #999;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 10px;
+            padding: 0 8px;
             font-weight: 700;
-            font-size: 13px;
-            flex-shrink: 0;
+            font-size: 12px;
         }
 
         .screen-body {
-            height: calc(100% - 26px);
+            height: calc(100% - 24px);
             position: relative;
             background: #e4e6eb;
         }
 
-        /* Список треків з безкінечним вертикальним скролом */
+        /* ОРИГІНАЛЬНЕ МЕНЮ З СКРОЛОМ */
         .view-layout {
             height: 100%;
             display: flex;
             flex-direction: column;
-            overflow-y: scroll; /* Скрол активний завжди, коли елементів багато */
+            overflow-y: scroll;
             -webkit-overflow-scrolling: touch;
         }
-        /* Приховуємо дефолтний потворний повзунок скролбару */
         .view-layout::-webkit-scrollbar { width: 0; display: none; }
 
-        /* ОНОВЛЕНІ СТИЛЬНІ РЯДКИ ПІСЕНЬ (БЕЗ ЕМОДЗІ) */
+        /* ОРИГІНАЛЬНИЙ СТИЛЬ РЯДКА: "Artist - Title" */
         .menu-item {
-            padding: 8px 12px;
-            font-size: 14px;
+            padding: 8px 10px;
+            font-size: 13px;
             font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            border-bottom: 1px solid #d4d5da;
-            background: #e4e6eb;
             color: #000000;
-            cursor: pointer;
-        }
-
-        .menu-item .track-title {
+            border-bottom: 1px solid #dbdbe0;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 14px;
+            background: #e4e6eb;
         }
 
-        .menu-item .track-artist {
-            font-size: 11px;
-            color: #666666;
-            font-weight: 500;
-            margin-top: 1px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Активний підсвічений рядок (Фірмовий синій колір Apple) */
         .menu-item.active {
             background: linear-gradient(to bottom, #428fd4, #1254a3);
             color: #ffffff;
             border-bottom-color: #1254a3;
-        }
-        .menu-item.active .track-artist {
-            color: #dae8f5;
         }
 
         /* ЕКРАН NOW PLAYING */
@@ -151,11 +124,11 @@
         }
 
         .album-art {
-            width: 120px !important;
-            height: 120px !important;
-            border-radius: 4px;
+            width: 125px !important;
+            height: 125px !important;
+            border-radius: 2px;
             object-fit: cover !important;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             border: 1px solid #999;
         }
 
@@ -177,6 +150,9 @@
             font-size: 12px; 
             color: #555; 
             margin-top: 1px;
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis;
         }
 
         /* ПРОГРЕС-БАР */
@@ -184,8 +160,8 @@
             width: 94%;
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 11px;
+            gap: 6px;
+            font-size: 10px;
             font-weight: bold;
             color: #333;
             margin-bottom: 2px;
@@ -193,12 +169,12 @@
         
         .progress-bar-outer {
             flex-grow: 1;
-            height: 7px;
+            height: 6px;
             background: #d1d5db;
             border: 1px solid #b5b8be;
-            border-radius: 3px;
+            border-radius: 2px;
             overflow: hidden;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
         
         .progress-bar-inner {
@@ -207,40 +183,38 @@
             background: linear-gradient(to bottom, #529ee6, #165ca8);
         }
 
-        /* CLICK WHEEL */
+        /* ПРАВИЛЬНЕ РОЗМІЩЕННЯ CLICK WHEEL (ОПУЩЕНО ВНИЗ НА 50px) */
         .wheel-container {
-            width: 280px;
-            height: 280px;
-            background: radial-gradient(circle, #28292e 0%, #17181c 80%, #0f1012 100%); 
+            width: 270px;
+            height: 270px;
+            background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
             border-radius: 50%;
-            margin-top: 5vh; /* Трохи підняли колесо для балансу екрана */
+            margin-top: 50px; /* Автентичний простір між екраном та колесом */
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 2px 6px rgba(255,255,255,0.15), 
-                        0 10px 25px rgba(0,0,0,0.7),
-                        0 0 0 3px #111;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 
+                        0 8px 25px rgba(0,0,0,0.6),
+                        0 0 0 2px #111;
             touch-action: none;
-            transition: background 0.5s ease, box-shadow 0.5s ease;
             z-index: 2;
         }
 
         body.aluminum-theme .wheel-container {
             background: radial-gradient(circle, #3a3f41 0%, #26292a 80%, #191b1c 100%);
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 
-                        0 8px 22px rgba(0,0,0,0.5),
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 
+                        0 6px 20px rgba(0,0,0,0.4),
                         0 0 0 2px #222;
         }
 
-        /* ЕЛЕМЕНТИ КЕРУВАННЯ */
+        /* ОРИГІНАЛЬНІ КНОПКИ */
         .wheel-label {
             position: absolute;
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            transition: fill 0.5s ease, color 0.5s ease;
             color: #8a8e99;
             fill: #8a8e99;
         }
@@ -251,33 +225,32 @@
         }
 
         .label-menu { 
-            top: 24px; 
+            top: 22px; 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
-            font-size: 15px;
+            font-size: 14px;
             letter-spacing: 0.5px;
         }
         
-        .label-play { bottom: 22px; width: 28px; height: 16px; } 
-        .label-prev { left: 24px; width: 20px; height: 18px; }
-        .label-next { right: 24px; width: 20px; height: 18px; }
+        .label-play { bottom: 22px; width: 26px; height: 15px; } 
+        .label-prev { left: 22px; width: 18px; height: 16px; }
+        .label-next { right: 22px; width: 18px; height: 16px; }
 
         /* Внутрішня кнопка Select */
         .center-button {
-            width: 95px;
-            height: 95px;
+            width: 90px;
+            height: 90px;
             background: #090a0c;
             border-radius: 50%;
             z-index: 10;
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 4px 10px rgba(0,0,0,0.4);
-            transition: background 0.5s ease, box-shadow 0.5s ease;
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4);
         }
 
         .center-button:active { background: #111215; }
 
         body.aluminum-theme .center-button {
             background: #2c302e;
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4);
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 6px rgba(0,0,0,0.4);
         }
         body.aluminum-theme .center-button:active { background: #202322; }
 
@@ -360,7 +333,7 @@
         
         let player;
         let progressInterval;
-        let touchTimeout = null; // Для детекції довгого натискання
+        let touchTimeout = null;
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -385,7 +358,7 @@
 
         const menuView = document.getElementById('view-menu');
         
-        // РЕНДЕР ОНОВЛЕНОГО СПИСКУ (БЕЗ ЕМОДЗІ, З ПІДТРИМКОЮ ВИДАЛЕННЯ)
+        // ЧИСТИЙ ОРИГІНАЛЬНИЙ РЕНДЕР (Artist - Title)
         function renderTracksMenu() {
             menuView.innerHTML = '';
             document.getElementById('header-title').textContent = `Музика (${myTracks.length})`;
@@ -394,23 +367,20 @@
                 const div = document.createElement('div');
                 div.className = `menu-item ${index === selectedIndex ? 'active' : ''}`;
                 
-                div.innerHTML = `
-                    <div class="track-title">${track.title}</div>
-                    <div class="track-artist">${track.artist}</div>
-                `;
+                // Рядок у класичному форматі плеєра
+                div.textContent = `${track.artist} - ${track.title}`;
 
-                // Обробка кліку пальцем по екрану
                 div.addEventListener('click', () => {
                     selectedIndex = index;
                     renderTracksMenu();
                     playClickSound();
                 });
 
-                // Довге натискання на екрані для ВИДАЛЕННЯ треку
+                // ВИДАЛЕННЯ ЧЕРЕЗ LONG PRESS
                 div.addEventListener('touchstart', (e) => {
                     touchTimeout = setTimeout(() => {
                         askDeleteTrack(index);
-                    }, 1000); // 1 секунда утримання
+                    }, 1000);
                 });
 
                 div.addEventListener('touchend', () => {
@@ -425,15 +395,13 @@
         }
         renderTracksMenu();
 
-        // ФУНКЦІЯ ВИДАЛЕННЯ ТРЕКУ
         function askDeleteTrack(index) {
             const track = myTracks[index];
-            const confirmDelete = confirm(`Видалити трек "${track.title}"?`);
+            const confirmDelete = confirm(`Видалити трек "${track.artist} - ${track.title}"?`);
             if (confirmDelete) {
                 myTracks.splice(index, 1);
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 
-                // Коригуємо вибір активного треку після видалення
                 if (selectedIndex >= myTracks.length) {
                     selectedIndex = Math.max(0, myTracks.length - 1);
                 }
@@ -510,13 +478,13 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            if (x < 70 && y > 60 && y < rect.height - 60) {
+            if (x < 65 && y > 60 && y < rect.height - 60) {
                 playClickSound();
                 prevTrack();
                 return;
             }
 
-            if (x > rect.width - 70 && y > 60 && y < rect.height - 60) {
+            if (x > rect.width - 65 && y > 60 && y < rect.height - 60) {
                 playClickSound();
                 nextTrack();
                 return;
@@ -656,8 +624,8 @@
             
             if (match && match[2].length === 11) {
                 const videoId = match[2];
-                const title = prompt("Введіть назву пісні:") || "New Song";
                 const artist = prompt("Введіть виконавця:") || "Unknown Artist";
+                const title = prompt("Введіть назву пісні:") || "New Song";
                 
                 myTracks.push({ id: videoId, title: title, artist: artist });
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
