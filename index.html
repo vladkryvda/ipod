@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iPod ">
     
     <title> iPod Classic</title>
+    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22 background-color=%22black%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2215%22 font-size=%2275%22 fill=%22white%22></text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22white%22></text></svg>">
     
     <style>
@@ -226,8 +230,8 @@
             letter-spacing: 0.5px;
         }
         
-        /* ЗБІЛЬШЕНІ ВЕКТОРНІ КНОПКИ (Фікс розміру + ідеальний Play/Pause) */
-        .label-play { bottom: 22px; width: 28px; height: 16px; } /* Трохи ширша під подвійну іконку */
+        /* КНОПКИ (Великі, векторні SVG) */
+        .label-play { bottom: 22px; width: 28px; height: 16px; } 
         .label-prev { left: 24px; width: 20px; height: 18px; }
         .label-next { right: 24px; width: 20px; height: 18px; }
 
@@ -313,10 +317,13 @@
             { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' }
         ];
 
-        // Завантаження треків з жорсткою прив'язкою до пам'яті домену/браузера
-        let myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
+        // Завантаження списку
+        let myTracks = [];
+        try {
+            myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
+        } catch(e) { myTracks = []; }
         
-        if (!myTracks || myTracks.length === 0) {
+        if (!myTracks || !Array.isArray(myTracks) || myTracks.length === 0) {
             myTracks = defaultTracks;
             localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
         }
@@ -585,9 +592,11 @@
                 const artist = prompt("Введіть виконавця:") || "Unknown Artist";
                 
                 myTracks.push({ id: videoId, title: title, artist: artist });
+                
+                // Жорстке збереження
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 
-                alert("Трек успішно додано до загального списку!");
+                alert("Трек успішно додано!");
                 renderTracksMenu();
             } else {
                 alert("Посилання не розпізнано!");
