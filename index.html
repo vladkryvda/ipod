@@ -37,7 +37,7 @@
 
         /* КАСТОМНА ТЕМА: SPACE GRAY & CHROME */
         body.aluminum-theme {
-            background: linear-gradient(135deg, #2c302e 0%, #4a5154 50 nudge%, #23272a 100%);
+            background: linear-gradient(135deg, #2c302e 0%, #4a5154 50%, #23272a 100%);
             color: #ffffff;
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
@@ -116,7 +116,6 @@
             background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
 
-        /* ФІКС ОБКЛАДИНКИ: ідеальний великий квадрат без жодних рамок */
         .album-art {
             width: 155px !important;
             height: 155px !important;
@@ -201,7 +200,7 @@
                         0 0 0 2px #222;
         }
 
-        /* ЕЛЕМЕНТИ КЕРУВАННЯ (Збереження єдиного стилю Apple) */
+        /* ЕЛЕМЕНТИ КЕРУВАННЯ */
         .wheel-label {
             position: absolute;
             display: flex;
@@ -209,8 +208,6 @@
             justify-content: center;
             pointer-events: none;
             transition: fill 0.5s ease, color 0.5s ease;
-            
-            /* Єдиний фірмовий колір оригінального iPod для всіх кнопок */
             color: #8a8e99;
             fill: #8a8e99;
         }
@@ -222,17 +219,17 @@
 
         /* Напис MENU */
         .label-menu { 
-            top: 25px; 
+            top: 24px; 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 15px;
             letter-spacing: 0.5px;
         }
         
-        /* Векторні SVG-кнопки (Ніколи не перетворяться на емодзі) */
-        .label-play { bottom: 25px; width: 18px; height: 14px; }
-        .label-prev { left: 25px; width: 16px; height: 14px; }
-        .label-next { right: 25px; width: 16px; height: 14px; }
+        /* ЗБІЛЬШЕНІ ВЕКТОРНІ КНОПКИ (Фікс розміру + ідеальний Play/Pause) */
+        .label-play { bottom: 22px; width: 28px; height: 16px; } /* Трохи ширша під подвійну іконку */
+        .label-prev { left: 24px; width: 20px; height: 18px; }
+        .label-next { right: 24px; width: 20px; height: 18px; }
 
         /* Внутрішня кнопка Select */
         .center-button {
@@ -299,14 +296,16 @@
         </div>
         
         <div class="wheel-label label-play">
-            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M8 5v14l11-7z"/></svg>
+            <svg viewBox="0 0 36 18" width="100%" height="100%">
+                <path d="M4 2v14l9-7z"/>
+                <path d="M19 2h3v14h-3zm6 0h3v14h-3z"/>
+            </svg>
         </div>
         
         <div class="center-button" id="btn-center"></div>
     </div>
 
     <script>
-        // Базова медіатека, яка вмикається ЛИШЕ якщо телефон повністю пустий
         const defaultTracks = [
             { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley' },
             { id: 'jfKfPfyJRdk', title: 'Lofi Girl Beats', artist: 'Lofi Girl' },
@@ -314,10 +313,9 @@
             { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' }
         ];
 
-        // ЗАХИСТ ВІД СКИДАННЯ: Спочатку жорстко перевіряємо localStorage
+        // Завантаження треків з жорсткою прив'язкою до пам'яті домену/браузера
         let myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
         
-        // Якщо в пам'яті нічого нема (перший запуск плеєра), то додаємо базу дефолтних треків
         if (!myTracks || myTracks.length === 0) {
             myTracks = defaultTracks;
             localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
@@ -437,21 +435,18 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
-            // Клікнули зліва (Кнопка ⏮) -> ПОПЕРЕДНІЙ ТРЕК
-            if (x < 60 && y > 60 && y < rect.height - 60) {
+            if (x < 70 && y > 60 && y < rect.height - 60) {
                 playClickSound();
                 prevTrack();
                 return;
             }
 
-            // Клікнули справа (Кнопка ⏭) -> НАСТУПНИЙ ТРЕК
-            if (x > rect.width - 60 && y > 60 && y < rect.height - 60) {
+            if (x > rect.width - 70 && y > 60 && y < rect.height - 60) {
                 playClickSound();
                 nextTrack();
                 return;
             }
 
-            // Клікнули вгорі (MENU)
             if (y < 60) {
                 playClickSound();
                 if (currentView === 'nowPlaying') {
@@ -463,7 +458,6 @@
                 return;
             }
 
-            // Клікнули внизу (PLAY/PAUSE)
             if (y > rect.height - 60) {
                 playClickSound();
                 
@@ -591,8 +585,6 @@
                 const artist = prompt("Введіть виконавця:") || "Unknown Artist";
                 
                 myTracks.push({ id: videoId, title: title, artist: artist });
-                
-                // Перезаписуємо сховище
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 
                 alert("Трек успішно додано до загального списку!");
