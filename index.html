@@ -3,40 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="iPod">
     
     <title>iPod Classic</title>
-    
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22black%22/><text y=%2275%22 x=%2215%22 font-size=%2275%22 fill=%22white%22></text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22white%22></text></svg>">
     
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-user-select: none; }
 
-        /* ЦЕНТРОВАНЕ ТІЛО ПЛЕЄРА (ЯК НА GITHUB) */
         body {
-            background-color: #000000;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center; /* Центруємо весь девайс на екрані */
-            padding: 20px 0;
-            position: relative;
-            transition: background 0.5s ease, color 0.5s ease;
+            background-color: #000; color: #fff; font-family: -apple-system, sans-serif;
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+            padding-top: calc(env(safe-area-inset-top) + 12px);
+            transition: background 0.5s, color 0.5s;
         }
 
         body.aluminum-theme {
@@ -44,20 +27,12 @@
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
 
-        /* КАНOНІЧНИЙ ЕКРАН */
+        /* ДИНАМІЧНИЙ ЕКРАН НА ВЕРХУ */
         .ipod-screen-container {
-            width: 88%;
-            max-width: 320px;
-            height: 240px; /* Чисті оригінальні пропорції */
-            flex-shrink: 0;
-            background: #e4e6eb;
-            border-radius: 6px;
-            border: 4px solid #1c1d21;
+            width: 90%; max-width: 380px; height: 42vh; flex-shrink: 0;
+            background: #e4e6eb; border-radius: 6px; border: 4px solid #1c1d21;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(0,0,0,0.3);
-            overflow: hidden;
-            position: relative;
-            color: #000;
-            z-index: 2;
+            overflow: hidden; position: relative; color: #000; z-index: 2;
         }
 
         body.aluminum-theme .ipod-screen-container {
@@ -66,192 +41,84 @@
         }
 
         .screen-header {
-            background: linear-gradient(to bottom, #fcfcfc, #cfd1d6);
-            height: 24px;
-            border-bottom: 1px solid #999;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 8px;
-            font-weight: 700;
-            font-size: 12px;
+            background: linear-gradient(to bottom, #fcfcfc, #cfd1d6); height: 26px;
+            border-bottom: 1px solid #999; display: flex; align-items: center;
+            justify-content: space-between; padding: 0 8px; font-weight: 700; font-size: 12px;
         }
 
-        .screen-body {
-            height: calc(100% - 24px);
-            position: relative;
-            background: #e4e6eb;
-        }
+        .screen-body { height: calc(100% - 26px); position: relative; background: #e4e6eb; }
 
-        /* ОРИГІНАЛЬНЕ МЕНЮ З СКРОЛОМ */
+        /* ВІЛЬНИЙ СПИСОК ЗІ СКРОЛОМ */
         .view-layout {
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            overflow-y: scroll;
-            -webkit-overflow-scrolling: touch;
+            height: 100%; display: flex; flex-direction: column;
+            overflow-y: scroll; -webkit-overflow-scrolling: touch;
         }
         .view-layout::-webkit-scrollbar { width: 0; display: none; }
 
-        /* ОРИГІНАЛЬНИЙ СТИЛЬ РЯДКА: "Artist - Title" */
+        /* ЗБІЛЬШЕНІ РЯДКИ ПІСЕНЬ (Не зжаті) */
         .menu-item {
-            padding: 8px 10px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #000000;
-            border-bottom: 1px solid #dbdbe0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            background: #e4e6eb;
+            padding: 12px 10px; font-size: 14px; font-weight: 600; color: #000;
+            border-bottom: 1px solid #dbdbe0; white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; background: #e4e6eb;
         }
 
         .menu-item.active {
-            background: linear-gradient(to bottom, #428fd4, #1254a3);
-            color: #ffffff;
-            border-bottom-color: #1254a3;
+            background: linear-gradient(to bottom, #428fd4, #1254a3); color: #fff; border-bottom-color: #1254a3;
         }
 
-        /* ЕКРАН NOW PLAYING */
         .view-now-playing {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            height: 100%;
-            background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
+            display: none; flex-direction: column; align-items: center; justify-content: space-between;
+            padding: 15px 10px; height: 100%; background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
 
         .album-art {
-            width: 125px !important;
-            height: 125px !important;
-            border-radius: 2px;
-            object-fit: cover !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid #999;
+            width: 150px !important; height: 150px !important; border-radius: 4px;
+            object-fit: cover !important; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #999;
         }
 
-        .np-info { 
-            text-align: center; 
-            width: 100%; 
-        }
-        
-        .np-title { 
-            font-weight: 700; 
-            font-size: 14px; 
-            color: #111;
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis;
-        }
-        
-        .np-artist { 
-            font-size: 12px; 
-            color: #555; 
-            margin-top: 1px;
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis;
-        }
+        .np-info { text-align: center; width: 100%; }
+        .np-title { font-weight: 700; font-size: 15px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .np-artist { font-size: 13px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        /* ПРОГРЕС-БАР */
         .progress-container {
-            width: 94%;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 10px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 2px;
+            width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333; margin-bottom: 2px;
         }
-        
         .progress-bar-outer {
-            flex-grow: 1;
-            height: 6px;
-            background: #d1d5db;
-            border: 1px solid #b5b8be;
-            border-radius: 2px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+            flex-grow: 1; height: 7px; background: #d1d5db; border: 1px solid #b5b8be;
+            border-radius: 3px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
-        
-        .progress-bar-inner {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(to bottom, #529ee6, #165ca8);
-        }
+        .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(to bottom, #529ee6, #165ca8); }
 
-        /* ПРАВИЛЬНЕ РОЗМІЩЕННЯ CLICK WHEEL (ОПУЩЕНО ВНИЗ НА 50px) */
+        /* ГАРМОНІЙНЕ КОЛЕСО */
         .wheel-container {
-            width: 270px;
-            height: 270px;
+            width: 280px; height: 280px;
             background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
-            border-radius: 50%;
-            margin-top: 50px; /* Автентичний простір між екраном та колесом */
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 
-                        0 8px 25px rgba(0,0,0,0.6),
-                        0 0 0 2px #111;
-            touch-action: none;
-            z-index: 2;
+            border-radius: 50%; 
+            margin-top: 8vh; /* Гнучка відстань від екрана */
+            position: relative; display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
+            touch-action: none; z-index: 2;
         }
 
         body.aluminum-theme .wheel-container {
             background: radial-gradient(circle, #3a3f41 0%, #26292a 80%, #191b1c 100%);
-            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 
-                        0 6px 20px rgba(0,0,0,0.4),
-                        0 0 0 2px #222;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 6px 20px rgba(0,0,0,0.4), 0 0 0 2px #222;
         }
 
-        /* ОРИГІНАЛЬНІ КНОПКИ */
-        .wheel-label {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            color: #8a8e99;
-            fill: #8a8e99;
-        }
+        .wheel-label { position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #8a8e99; fill: #8a8e99; }
+        body.aluminum-theme .wheel-label { color: #b0b5c2; fill: #b0b5c2; }
 
-        body.aluminum-theme .wheel-label {
-            color: #b0b5c2;
-            fill: #b0b5c2;
-        }
+        .label-menu { top: 22px; font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
+        .label-play { bottom: 22px; width: 28px; height: 16px; } 
+        .label-prev { left: 22px; width: 20px; height: 18px; }
+        .label-next { right: 22px; width: 20px; height: 18px; }
 
-        .label-menu { 
-            top: 22px; 
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 700;
-            font-size: 14px;
-            letter-spacing: 0.5px;
-        }
-        
-        .label-play { bottom: 22px; width: 26px; height: 15px; } 
-        .label-prev { left: 22px; width: 18px; height: 16px; }
-        .label-next { right: 22px; width: 18px; height: 16px; }
-
-        /* Внутрішня кнопка Select */
         .center-button {
-            width: 90px;
-            height: 90px;
-            background: #090a0c;
-            border-radius: 50%;
-            z-index: 10;
+            width: 95px; height: 95px; background: #090a0c; border-radius: 50%; z-index: 10;
             box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4);
         }
-
         .center-button:active { background: #111215; }
-
-        body.aluminum-theme .center-button {
-            background: #2c302e;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 6px rgba(0,0,0,0.4);
-        }
+        body.aluminum-theme .center-button { background: #2c302e; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 6px rgba(0,0,0,0.4); }
         body.aluminum-theme .center-button:active { background: #202322; }
 
         #youtube-player { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
@@ -266,22 +133,17 @@
             <span id="header-title">iPod</span>
             <span>🔋</span>
         </div>
-
         <div class="screen-body">
             <div class="view-layout" id="view-menu"></div>
-
             <div class="view-now-playing" id="view-now-playing">
                 <img src="" id="np-cover" class="album-art" alt="Cover">
                 <div class="np-info">
                     <div class="np-title" id="np-title">Назва</div>
                     <div class="np-artist" id="np-artist">Артист</div>
                 </div>
-                
                 <div class="progress-container">
                     <span id="time-current">0:00</span>
-                    <div class="progress-bar-outer">
-                        <div class="progress-bar-inner" id="track-progress"></div>
-                    </div>
+                    <div class="progress-bar-outer"><div class="progress-bar-inner" id="track-progress"></div></div>
                     <span id="time-total">-0:00</span>
                 </div>
             </div>
@@ -290,22 +152,9 @@
 
     <div class="wheel-container" id="wheel">
         <div class="wheel-label label-menu">MENU</div>
-        
-        <div class="wheel-label label-prev">
-            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-        </div>
-        
-        <div class="wheel-label label-next">
-            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg>
-        </div>
-        
-        <div class="wheel-label label-play">
-            <svg viewBox="0 0 36 18" width="100%" height="100%">
-                <path d="M4 2v14l9-7z"/>
-                <path d="M19 2h3v14h-3zm6 0h3v14h-3z"/>
-            </svg>
-        </div>
-        
+        <div class="wheel-label label-prev"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></div>
+        <div class="wheel-label label-next"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg></div>
+        <div class="wheel-label label-play"><svg viewBox="0 0 36 18" width="100%" height="100%"><path d="M4 2v14l9-7z"/><path d="M19 2h3v14h-3zm6 0h3v14h-3z"/></svg></div>
         <div class="center-button" id="btn-center"></div>
     </div>
 
@@ -318,22 +167,12 @@
         ];
 
         let myTracks = [];
-        try {
-            myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
-        } catch(e) { myTracks = []; }
-        
+        try { myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks')); } catch(e) { myTracks = []; }
         if (!myTracks || !Array.isArray(myTracks) || myTracks.length === 0) {
-            myTracks = defaultTracks;
-            localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
+            myTracks = defaultTracks; localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
         }
 
-        let selectedIndex = 0;
-        let playingIndex = null;
-        let currentView = 'menu';
-        
-        let player;
-        let progressInterval;
-        let touchTimeout = null;
+        let selectedIndex = 0, playingIndex = null, currentView = 'menu', player, progressInterval, touchTimeout = null;
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -343,22 +182,12 @@
             player = new YT.Player('youtube-player', {
                 height: '1', width: '1', videoId: '',
                 playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
-                events: { 
-                    'onStateChange': onPlayerStateChange,
-                    'onReady': () => { startProgressLoop(); }
-                }
+                events: { 'onStateChange': e => { if (e.data === YT.PlayerState.ENDED) nextTrack(); }, 'onReady': startProgressLoop }
             });
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data === YT.PlayerState.ENDED) {
-                nextTrack();
-            }
         }
 
         const menuView = document.getElementById('view-menu');
         
-        // ЧИСТИЙ ОРИГІНАЛЬНИЙ РЕНДЕР (Artist - Title)
         function renderTracksMenu() {
             menuView.innerHTML = '';
             document.getElementById('header-title').textContent = `Музика (${myTracks.length})`;
@@ -366,26 +195,11 @@
             myTracks.forEach((track, index) => {
                 const div = document.createElement('div');
                 div.className = `menu-item ${index === selectedIndex ? 'active' : ''}`;
-                
-                // Рядок у класичному форматі плеєра
                 div.textContent = `${track.artist} - ${track.title}`;
 
-                div.addEventListener('click', () => {
-                    selectedIndex = index;
-                    renderTracksMenu();
-                    playClickSound();
-                });
-
-                // ВИДАЛЕННЯ ЧЕРЕЗ LONG PRESS
-                div.addEventListener('touchstart', (e) => {
-                    touchTimeout = setTimeout(() => {
-                        askDeleteTrack(index);
-                    }, 1000);
-                });
-
-                div.addEventListener('touchend', () => {
-                    if (touchTimeout) clearTimeout(touchTimeout);
-                });
+                div.addEventListener('click', () => { selectedIndex = index; renderTracksMenu(); playClickSound(); });
+                div.addEventListener('touchstart', () => { touchTimeout = setTimeout(() => askDeleteTrack(index), 1000); });
+                div.addEventListener('touchend', () => { if (touchTimeout) clearTimeout(touchTimeout); });
 
                 menuView.appendChild(div);
             });
@@ -396,202 +210,114 @@
         renderTracksMenu();
 
         function askDeleteTrack(index) {
-            const track = myTracks[index];
-            const confirmDelete = confirm(`Видалити трек "${track.artist} - ${track.title}"?`);
-            if (confirmDelete) {
+            if (confirm(`Видалити трек "${myTracks[index].artist} - ${myTracks[index].title}"?`)) {
                 myTracks.splice(index, 1);
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
-                
-                if (selectedIndex >= myTracks.length) {
-                    selectedIndex = Math.max(0, myTracks.length - 1);
-                }
+                selectedIndex = Math.max(0, Math.min(selectedIndex, myTracks.length - 1));
                 renderTracksMenu();
             }
         }
 
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        const audioCtx = new AudioContext();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playClickSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
             osc.type = 'sine'; osc.frequency.setValueAtTime(850, audioCtx.currentTime);
             osc.frequency.exponentialRampToValueAtTime(10, audioCtx.currentTime + 0.03);
-            gainNode.gain.setValueAtTime(0.25, audioCtx.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
-            osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+            gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+            osc.connect(gain); gain.connect(audioCtx.destination);
             osc.start(); osc.stop(audioCtx.currentTime + 0.03);
         }
 
         const wheel = document.getElementById('wheel');
-        let lastAngle = 0;
-        let angleAccumulator = 0;
+        let lastAngle = 0, angleAccumulator = 0;
 
-        wheel.addEventListener('touchstart', (e) => {
-            const rect = wheel.getBoundingClientRect();
-            const x = e.touches[0].clientX - (rect.left + rect.width / 2);
-            const y = e.touches[0].clientY - (rect.top + rect.height / 2);
-            lastAngle = Math.atan2(y, x) * (180 / Math.PI);
-        });
+        const getAngle = (e) => {
+            const rect = wheel.getBoundingClientRect(),
+                  x = (e.touches ? e.touches[0].clientX : e.clientX) - (rect.left + rect.width / 2),
+                  y = (e.touches ? e.touches[0].clientY : e.clientY) - (rect.top + rect.height / 2);
+            return Math.atan2(y, x) * (180 / Math.PI);
+        };
 
-        wheel.addEventListener('touchmove', (e) => {
+        wheel.addEventListener('touchstart', e => lastAngle = getAngle(e));
+        wheel.addEventListener('touchmove', e => {
             e.preventDefault();
-            const rect = wheel.getBoundingClientRect();
-            const x = e.touches[0].clientX - (rect.left + rect.width / 2);
-            const y = e.touches[0].clientY - (rect.top + rect.height / 2);
-            let currentAngle = Math.atan2(y, x) * (180 / Math.PI);
-            
-            let delta = currentAngle - lastAngle;
-            if (delta > 180) delta -= 360;
-            if (delta < -180) delta += 360;
-            angleAccumulator += delta;
-            lastAngle = currentAngle;
+            let currentAngle = getAngle(e), delta = currentAngle - lastAngle;
+            if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
+            angleAccumulator += delta; lastAngle = currentAngle;
 
             if (Math.abs(angleAccumulator) > 18) {
-                const direction = angleAccumulator > 0 ? 1 : -1;
-
+                const dir = angleAccumulator > 0 ? 1 : -1;
                 if (currentView === 'menu') {
-                    selectedIndex = Math.max(0, Math.min(selectedIndex + direction, myTracks.length - 1));
-                    renderTracksMenu();
-                    playClickSound();
+                    selectedIndex = Math.max(0, Math.min(selectedIndex + dir, myTracks.length - 1));
+                    renderTracksMenu(); playClickSound();
                 } else if (currentView === 'nowPlaying' && player) {
-                    const currentTime = player.getCurrentTime();
-                    let newTime = currentTime + (direction * 4); 
-                    const duration = player.getDuration();
-                    
-                    if (newTime < 0) newTime = 0;
-                    if (newTime > duration) newTime = duration;
-                    
-                    player.seekTo(newTime, true);
-                    updateProgressBar(newTime, duration);
-                    playClickSound();
+                    let newTime = Math.max(0, Math.min(player.getCurrentTime() + dir * 4, player.getDuration()));
+                    player.seekTo(newTime, true); updateProgressBar(newTime, player.getDuration()); playClickSound();
                 }
                 angleAccumulator = 0;
             }
         });
 
-        let pauseClickCount = 0;
-        let pauseClickTimer = null;
+        let pauseClickCount = 0, pauseClickTimer = null;
+        wheel.addEventListener('click', e => {
+            const rect = wheel.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
 
-        wheel.addEventListener('click', (e) => {
-            const rect = wheel.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-
-            if (x < 65 && y > 60 && y < rect.height - 60) {
-                playClickSound();
-                prevTrack();
-                return;
-            }
-
-            if (x > rect.width - 65 && y > 60 && y < rect.height - 60) {
-                playClickSound();
-                nextTrack();
-                return;
-            }
-
+            if (x < 65 && y > 60 && y < rect.height - 60) { playClickSound(); prevTrack(); return; }
+            if (x > rect.width - 65 && y > 60 && y < rect.height - 60) { playClickSound(); nextTrack(); return; }
             if (y < 60) {
                 playClickSound();
                 if (currentView === 'nowPlaying') {
-                    currentView = 'menu';
-                    document.getElementById('view-menu').style.display = 'flex';
-                    document.getElementById('view-now-playing').style.display = 'none';
-                    renderTracksMenu();
+                    currentView = 'menu'; document.getElementById('view-menu').style.display = 'flex';
+                    document.getElementById('view-now-playing').style.display = 'none'; renderTracksMenu();
                 }
                 return;
             }
-
             if (y > rect.height - 60) {
-                playClickSound();
-                
-                pauseClickCount++;
+                playClickSound(); pauseClickCount++;
                 if (pauseClickTimer) clearTimeout(pauseClickTimer);
-                
                 if (pauseClickCount === 3) {
                     document.body.classList.toggle('aluminum-theme');
-                    
-                    const isSpaceGray = document.body.classList.contains('aluminum-theme');
-                    const iconColor = isSpaceGray ? 'black' : 'white';
-                    document.querySelector("link[rel='icon']").href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22${iconColor}%22></text></svg>`;
-
-                    pauseClickCount = 0;
-                    return;
+                    document.querySelector("link[rel='icon']").href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22${document.body.classList.contains('aluminum-theme') ? 'black' : 'white'}%22></text></svg>`;
+                    pauseClickCount = 0; return;
                 }
-                
                 pauseClickTimer = setTimeout(() => {
                     if (pauseClickCount === 1 && player) {
-                        const state = player.getPlayerState();
-                        if (state === YT.PlayerState.PLAYING) player.pauseVideo();
-                        else player.playVideo();
+                        player.getPlayerState() === YT.PlayerState.PLAYING ? player.pauseVideo() : player.playVideo();
                     }
                     pauseClickCount = 0;
                 }, 350);
             }
         });
 
-        let centerClickCount = 0;
-        let centerClickTimer = null;
-
+        let centerClickCount = 0, centerClickTimer = null;
         document.getElementById('btn-center').addEventListener('click', () => {
-            playClickSound();
-            centerClickCount++;
+            playClickSound(); centerClickCount++;
             if (centerClickTimer) clearTimeout(centerClickTimer);
 
-            if (centerClickCount === 3) {
-                addNewFlatTrack();
-                centerClickCount = 0;
-                return;
-            }
-
+            if (centerClickCount === 3) { addNewFlatTrack(); centerClickCount = 0; return; }
             centerClickTimer = setTimeout(() => {
-                if (centerClickCount === 1) {
-                    if (currentView === 'menu' && myTracks[selectedIndex]) {
-                        if (playingIndex === selectedIndex) {
-                            currentView = 'nowPlaying';
-                            document.getElementById('view-menu').style.display = 'none';
-                            document.getElementById('view-now-playing').style.display = 'flex';
-                            document.getElementById('header-title').textContent = 'Now Playing';
-                        } else {
-                            playingIndex = selectedIndex;
-                            playTrack(myTracks[selectedIndex]);
-                        }
-                    }
+                if (centerClickCount === 1 && currentView === 'menu' && myTracks[selectedIndex]) {
+                    if (playingIndex === selectedIndex) {
+                        currentView = 'nowPlaying'; document.getElementById('view-menu').style.display = 'none';
+                        document.getElementById('view-now-playing').style.display = 'flex'; document.getElementById('header-title').textContent = 'Now Playing';
+                    } else { playingIndex = selectedIndex; playTrack(myTracks[selectedIndex]); }
                 }
                 centerClickCount = 0;
             }, 350);
         });
 
         function playTrack(track) {
-            currentView = 'nowPlaying';
-            document.getElementById('view-menu').style.display = 'none';
-            document.getElementById('view-now-playing').style.display = 'flex';
-            document.getElementById('header-title').textContent = 'Now Playing';
-
-            document.getElementById('np-title').textContent = track.title;
-            document.getElementById('np-artist').textContent = track.artist;
+            currentView = 'nowPlaying'; document.getElementById('view-menu').style.display = 'none';
+            document.getElementById('view-now-playing').style.display = 'flex'; document.getElementById('header-title').textContent = 'Now Playing';
+            document.getElementById('np-title').textContent = track.title; document.getElementById('np-artist').textContent = track.artist;
             document.getElementById('np-cover').src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
-
-            if (player) {
-                player.loadVideoById(track.id);
-                player.playVideo();
-            }
+            if (player) { player.loadVideoById(track.id); player.playVideo(); }
         }
 
-        function nextTrack() {
-            if (myTracks.length > 0) {
-                playingIndex = (playingIndex === null) ? 0 : (playingIndex + 1) % myTracks.length;
-                selectedIndex = playingIndex;
-                playTrack(myTracks[playingIndex]);
-            }
-        }
-
-        function prevTrack() {
-            if (myTracks.length > 0) {
-                playingIndex = (playingIndex === null) ? 0 : (playingIndex - 1 + myTracks.length) % myTracks.length;
-                selectedIndex = playingIndex;
-                playTrack(myTracks[playingIndex]);
-            }
-        }
+        function nextTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex + 1) % myTracks.length); playTrack(myTracks[playingIndex]); } }
+        function prevTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex - 1 + myTracks.length) % myTracks.length); playTrack(myTracks[playingIndex]); } }
 
         function startProgressLoop() {
             progressInterval = setInterval(() => {
@@ -601,40 +327,22 @@
             }, 1000);
         }
 
-        function updateProgressBar(current, duration) {
-            if (!duration) return;
-            const percentage = (current / duration) * 100;
-            document.getElementById('track-progress').style.width = `${percentage}%`;
-            document.getElementById('time-current').textContent = formatTime(current);
-            document.getElementById('time-total').textContent = "-" + formatTime(duration - current);
+        function updateProgressBar(cur, dur) {
+            if (!dur) return;
+            document.getElementById('track-progress').style.width = `${(cur / dur) * 100}%`;
+            document.getElementById('time-current').textContent = formatTime(cur);
+            document.getElementById('time-total').textContent = "-" + formatTime(dur - cur);
         }
 
-        function formatTime(time) {
-            const mins = Math.floor(time / 60);
-            const secs = Math.floor(time % 60);
-            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-        }
+        const formatTime = t => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
 
         function addNewFlatTrack() {
-            const url = prompt("Встав посилання на YouTube відео:");
-            if (!url) return;
-
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            
+            const url = prompt("Встав посилання на YouTube відео:"); if (!url) return;
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             if (match && match[2].length === 11) {
-                const videoId = match[2];
-                const artist = prompt("Введіть виконавця:") || "Unknown Artist";
-                const title = prompt("Введіть назву пісні:") || "New Song";
-                
-                myTracks.push({ id: videoId, title: title, artist: artist });
-                localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
-                
-                alert("Трек успішно додано!");
-                renderTracksMenu();
-            } else {
-                alert("Посилання не розпізнано!");
-            }
+                myTracks.push({ id: match[2], artist: prompt("Введіть виконавця:") || "Unknown", title: prompt("Введіть назву пісні:") || "New Song" });
+                localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks)); alert("Трек додано!"); renderTracksMenu();
+            } else alert("Посилання не розпізнано!");
         }
     </script>
 </body>
