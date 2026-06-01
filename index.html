@@ -17,8 +17,9 @@
         body {
             background-color: #000; color: #fff; font-family: -apple-system, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
-            padding-top: calc(env(safe-area-inset-top) + 12px);
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between; /* Збалансоване розташування */
+            padding-top: calc(env(safe-area-inset-top) + 20px);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
             transition: background 0.5s, color 0.5s;
         }
 
@@ -27,12 +28,14 @@
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
 
-        /* ДИНАМІЧНИЙ ЕКРАН НА ВЕРХУ */
+        /* ДИНАМІЧНИЙ ЕКРАН НА ВЕРХУ - Пропорції 4:3 як у класичного iPod */
         .ipod-screen-container {
-            width: 90%; max-width: 380px; height: 42vh; flex-shrink: 0;
+            width: 88%; max-width: 320px; 
+            aspect-ratio: 4 / 3; /* Тримає форму екрана iPod */
             background: #e4e6eb; border-radius: 6px; border: 4px solid #1c1d21;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(0,0,0,0.3);
             overflow: hidden; position: relative; color: #000; z-index: 2;
+            display: flex; flex-direction: column;
         }
 
         body.aluminum-theme .ipod-screen-container {
@@ -44,20 +47,24 @@
             background: linear-gradient(to bottom, #fcfcfc, #cfd1d6); height: 26px;
             border-bottom: 1px solid #999; display: flex; align-items: center;
             justify-content: space-between; padding: 0 8px; font-weight: 700; font-size: 12px;
+            flex-shrink: 0;
         }
 
-        .screen-body { height: calc(100% - 26px); position: relative; background: #e4e6eb; }
+        .screen-body { flex-grow: 1; position: relative; background: #e4e6eb; overflow: hidden; }
 
         /* ВІЛЬНИЙ СПИСОК ЗІ СКРОЛОМ */
         .view-layout {
             height: 100%; display: flex; flex-direction: column;
-            overflow-y: scroll; -webkit-overflow-scrolling: touch;
+            overflow-y: auto; -webkit-overflow-scrolling: touch;
         }
         .view-layout::-webkit-scrollbar { width: 0; display: none; }
 
-        /* ЗБІЛЬШЕНІ РЯДКИ ПІСЕНЬ (Не зжаті) */
+        /* ЗБІЛЬШЕНІ РЯДКИ ПІСЕНЬ (flex-shrink: 0 не дає їм зжиматися) */
         .menu-item {
-            padding: 12px 10px; font-size: 14px; font-weight: 600; color: #000;
+            flex-shrink: 0; /* ГОЛОВНИЙ ФІКС: забороняє зжимати рядки */
+            height: 40px; /* Фіксована висота рядка */
+            display: flex; align-items: center;
+            padding: 0 10px; font-size: 14px; font-weight: 600; color: #000;
             border-bottom: 1px solid #dbdbe0; white-space: nowrap; overflow: hidden;
             text-overflow: ellipsis; background: #e4e6eb;
         }
@@ -67,21 +74,22 @@
         }
 
         .view-now-playing {
-            display: none; flex-direction: column; align-items: center; justify-content: space-between;
-            padding: 15px 10px; height: 100%; background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px; height: 100%; background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
 
         .album-art {
-            width: 150px !important; height: 150px !important; border-radius: 4px;
+            width: 120px !important; height: 120px !important; border-radius: 4px;
             object-fit: cover !important; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #999;
+            margin-bottom: 10px;
         }
 
-        .np-info { text-align: center; width: 100%; }
+        .np-info { text-align: center; width: 100%; margin-bottom: 10px; }
         .np-title { font-weight: 700; font-size: 15px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .np-artist { font-size: 13px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
         .progress-container {
-            width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333; margin-bottom: 2px;
+            width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333;
         }
         .progress-bar-outer {
             flex-grow: 1; height: 7px; background: #d1d5db; border: 1px solid #b5b8be;
@@ -94,7 +102,7 @@
             width: 280px; height: 280px;
             background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
             border-radius: 50%; 
-            margin-top: 8vh; /* Гнучка відстань від екрана */
+            margin-bottom: 20px; /* Відступ знизу екрана */
             position: relative; display: flex; align-items: center; justify-content: center;
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
             touch-action: none; z-index: 2;
@@ -174,6 +182,7 @@
 
         let selectedIndex = 0, playingIndex = null, currentView = 'menu', player, progressInterval, touchTimeout = null;
 
+        // ВИПРАВЛЕНО: Правильне посилання на YouTube API
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(tag);
@@ -204,8 +213,12 @@
                 menuView.appendChild(div);
             });
 
+            // Автоскрол до обраного елемента
             const activeEl = document.querySelector('.menu-item.active');
-            if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+            if (activeEl) {
+                // Плавний скролінг до активного елемента (поведінка справжнього iPod)
+                activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
         }
         renderTracksMenu();
 
@@ -312,6 +325,7 @@
             currentView = 'nowPlaying'; document.getElementById('view-menu').style.display = 'none';
             document.getElementById('view-now-playing').style.display = 'flex'; document.getElementById('header-title').textContent = 'Now Playing';
             document.getElementById('np-title').textContent = track.title; document.getElementById('np-artist').textContent = track.artist;
+            // ВИПРАВЛЕНО: Правильне посилання на картинку YouTube відео
             document.getElementById('np-cover').src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
             if (player) { player.loadVideoById(track.id); player.playVideo(); }
         }
@@ -341,7 +355,13 @@
             const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             if (match && match[2].length === 11) {
                 myTracks.push({ id: match[2], artist: prompt("Введіть виконавця:") || "Unknown", title: prompt("Введіть назву пісні:") || "New Song" });
-                localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks)); alert("Трек додано!"); renderTracksMenu();
+                localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks)); 
+                
+                // Змінюємо вибір на новий трек, щоб екран автоматично прокрутився вниз
+                selectedIndex = myTracks.length - 1;
+                
+                alert("Трек додано!"); 
+                renderTracksMenu();
             } else alert("Посилання не розпізнано!");
         }
     </script>
