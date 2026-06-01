@@ -34,7 +34,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding-top: calc(env(safe-area-inset-top) + 8px);
+            padding-top: calc(env(safe-area-inset-top) + 15px);
             position: relative;
             transition: background 0.5s ease, color 0.5s ease;
         }
@@ -46,11 +46,12 @@
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
 
-        /* ЕКРАН iPOD */
+        /* ЕКРАН iPOD (Жорстка фіксація висоти, щоб не втискався) */
         .ipod-screen-container {
-            width: 88%;
+            width: 90%;
             max-width: 340px;
-            height: 38vh;
+            height: 240px; /* Сувора фіксація висоти екрана */
+            flex-shrink: 0; /* Заборона стискання при додаванні контенту */
             background: #e4e6eb;
             border-radius: 8px;
             border: 4px solid #1c1d21;
@@ -70,13 +71,14 @@
         .screen-header {
             background: linear-gradient(to bottom, #fcfcfc, #cfd1d6);
             height: 26px;
-            border-bottom: 2px solid #999;
+            border-bottom: 2px solid #a6a8ad;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 10px;
-            font-weight: bold;
+            font-weight: 700;
             font-size: 13px;
+            flex-shrink: 0;
         }
 
         .screen-body {
@@ -85,28 +87,56 @@
             background: #e4e6eb;
         }
 
-        /* Список треків */
+        /* Список треків з безкінечним вертикальним скролом */
         .view-layout {
             height: 100%;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            overflow-y: scroll; /* Скрол активний завжди, коли елементів багато */
+            -webkit-overflow-scrolling: touch;
         }
-        .view-layout::-webkit-scrollbar { width: 0; }
+        /* Приховуємо дефолтний потворний повзунок скролбару */
+        .view-layout::-webkit-scrollbar { width: 0; display: none; }
 
+        /* ОНОВЛЕНІ СТИЛЬНІ РЯДКИ ПІСЕНЬ (БЕЗ ЕМОДЗІ) */
         .menu-item {
-            padding: 10px 14px;
-            font-size: 15px;
+            padding: 8px 12px;
+            font-size: 14px;
             font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid #d4d5da;
+            background: #e4e6eb;
+            color: #000000;
+            cursor: pointer;
+        }
+
+        .menu-item .track-title {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            border-bottom: 1px solid #dbdbe0;
+            font-size: 14px;
         }
 
+        .menu-item .track-artist {
+            font-size: 11px;
+            color: #666666;
+            font-weight: 500;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Активний підсвічений рядок (Фірмовий синій колір Apple) */
         .menu-item.active {
             background: linear-gradient(to bottom, #428fd4, #1254a3);
-            color: white;
+            color: #ffffff;
+            border-bottom-color: #1254a3;
+        }
+        .menu-item.active .track-artist {
+            color: #dae8f5;
         }
 
         /* ЕКРАН NOW PLAYING */
@@ -115,29 +145,28 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 12px;
+            padding: 10px;
             height: 100%;
             background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
 
         .album-art {
-            width: 155px !important;
-            height: 155px !important;
+            width: 120px !important;
+            height: 120px !important;
             border-radius: 4px;
             object-fit: cover !important;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             border: 1px solid #999;
         }
 
         .np-info { 
             text-align: center; 
             width: 100%; 
-            margin-top: 2px;
         }
         
         .np-title { 
-            font-weight: bold; 
-            font-size: 15px; 
+            font-weight: 700; 
+            font-size: 14px; 
             color: #111;
             white-space: nowrap; 
             overflow: hidden; 
@@ -145,14 +174,14 @@
         }
         
         .np-artist { 
-            font-size: 13px; 
+            font-size: 12px; 
             color: #555; 
             margin-top: 1px;
         }
 
         /* ПРОГРЕС-БАР */
         .progress-container {
-            width: 92%;
+            width: 94%;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -164,7 +193,7 @@
         
         .progress-bar-outer {
             flex-grow: 1;
-            height: 8px;
+            height: 7px;
             background: #d1d5db;
             border: 1px solid #b5b8be;
             border-radius: 3px;
@@ -180,11 +209,11 @@
 
         /* CLICK WHEEL */
         .wheel-container {
-            width: 285px;
-            height: 285px;
+            width: 280px;
+            height: 280px;
             background: radial-gradient(circle, #28292e 0%, #17181c 80%, #0f1012 100%); 
             border-radius: 50%;
-            margin-top: 12vh;
+            margin-top: 5vh; /* Трохи підняли колесо для балансу екрана */
             position: relative;
             display: flex;
             align-items: center;
@@ -221,7 +250,6 @@
             fill: #b0b5c2;
         }
 
-        /* Напис MENU */
         .label-menu { 
             top: 24px; 
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -230,7 +258,6 @@
             letter-spacing: 0.5px;
         }
         
-        /* КНОПКИ (Великі, векторні SVG) */
         .label-play { bottom: 22px; width: 28px; height: 16px; } 
         .label-prev { left: 24px; width: 20px; height: 18px; }
         .label-next { right: 24px; width: 20px; height: 18px; }
@@ -317,7 +344,6 @@
             { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' }
         ];
 
-        // Завантаження списку
         let myTracks = [];
         try {
             myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
@@ -334,6 +360,7 @@
         
         let player;
         let progressInterval;
+        let touchTimeout = null; // Для детекції довгого натискання
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -357,6 +384,8 @@
         }
 
         const menuView = document.getElementById('view-menu');
+        
+        // РЕНДЕР ОНОВЛЕНОГО СПИСКУ (БЕЗ ЕМОДЗІ, З ПІДТРИМКОЮ ВИДАЛЕННЯ)
         function renderTracksMenu() {
             menuView.innerHTML = '';
             document.getElementById('header-title').textContent = `Музика (${myTracks.length})`;
@@ -364,7 +393,30 @@
             myTracks.forEach((track, index) => {
                 const div = document.createElement('div');
                 div.className = `menu-item ${index === selectedIndex ? 'active' : ''}`;
-                div.innerHTML = `<span>🎵 ${track.title}</span>`;
+                
+                div.innerHTML = `
+                    <div class="track-title">${track.title}</div>
+                    <div class="track-artist">${track.artist}</div>
+                `;
+
+                // Обробка кліку пальцем по екрану
+                div.addEventListener('click', () => {
+                    selectedIndex = index;
+                    renderTracksMenu();
+                    playClickSound();
+                });
+
+                // Довге натискання на екрані для ВИДАЛЕННЯ треку
+                div.addEventListener('touchstart', (e) => {
+                    touchTimeout = setTimeout(() => {
+                        askDeleteTrack(index);
+                    }, 1000); // 1 секунда утримання
+                });
+
+                div.addEventListener('touchend', () => {
+                    if (touchTimeout) clearTimeout(touchTimeout);
+                });
+
                 menuView.appendChild(div);
             });
 
@@ -372,6 +424,22 @@
             if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
         }
         renderTracksMenu();
+
+        // ФУНКЦІЯ ВИДАЛЕННЯ ТРЕКУ
+        function askDeleteTrack(index) {
+            const track = myTracks[index];
+            const confirmDelete = confirm(`Видалити трек "${track.title}"?`);
+            if (confirmDelete) {
+                myTracks.splice(index, 1);
+                localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
+                
+                // Коригуємо вибір активного треку після видалення
+                if (selectedIndex >= myTracks.length) {
+                    selectedIndex = Math.max(0, myTracks.length - 1);
+                }
+                renderTracksMenu();
+            }
+        }
 
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
@@ -592,8 +660,6 @@
                 const artist = prompt("Введіть виконавця:") || "Unknown Artist";
                 
                 myTracks.push({ id: videoId, title: title, artist: artist });
-                
-                // Жорстке збереження
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 
                 alert("Трек успішно додано!");
