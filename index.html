@@ -17,10 +17,12 @@
         body {
             background-color: #000; color: #fff; font-family: -apple-system, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: space-between; /* Збалансоване розташування */
+            display: flex; flex-direction: column; align-items: center; justify-content: space-between;
             padding-top: calc(env(safe-area-inset-top) + 20px);
             padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
             transition: background 0.5s, color 0.5s;
+            overscroll-behavior-y: none; /* Блокує "резиновий" скрол iOS */
+            -webkit-touch-callout: none;
         }
 
         body.aluminum-theme {
@@ -28,14 +30,21 @@
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
 
-        /* ДИНАМІЧНИЙ ЕКРАН НА ВЕРХУ - Пропорції 4:3 як у класичного iPod */
+        /* Хак для iOS: iframe має існувати, щоб грати в фоні */
+        #youtube-player { 
+            position: absolute; width: 10px; height: 10px; top: 0; left: 0; 
+            opacity: 0.01; pointer-events: none; z-index: -1; 
+        }
+
+        /* ДИНАМІЧНИЙ ЕКРАН - Пропорції 4:3 */
         .ipod-screen-container {
             width: 88%; max-width: 320px; 
-            aspect-ratio: 4 / 3; /* Тримає форму екрана iPod */
+            aspect-ratio: 4 / 3; 
             background: #e4e6eb; border-radius: 6px; border: 4px solid #1c1d21;
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(0,0,0,0.3);
             overflow: hidden; position: relative; color: #000; z-index: 2;
             display: flex; flex-direction: column;
+            touch-action: none; /* Заборона торкатися екрана */
         }
 
         body.aluminum-theme .ipod-screen-container {
@@ -47,67 +56,60 @@
             background: linear-gradient(to bottom, #fcfcfc, #cfd1d6); height: 26px;
             border-bottom: 1px solid #999; display: flex; align-items: center;
             justify-content: space-between; padding: 0 8px; font-weight: 700; font-size: 12px;
-            flex-shrink: 0;
+            flex-shrink: 0; z-index: 5;
         }
 
-        .screen-body { flex-grow: 1; position: relative; background: #e4e6eb; overflow: hidden; }
+        /* Контейнер для класичної анімації "виїзду" екранів */
+        .screen-body { 
+            flex-grow: 1; overflow: hidden; position: relative; background: #e4e6eb; 
+        }
+        .sliding-container {
+            display: flex; width: 200%; height: 100%;
+            transition: transform 0.25s ease-out;
+        }
+
+        .view-layout, .view-now-playing { width: 50%; height: 100%; flex-shrink: 0; }
 
         /* ВІЛЬНИЙ СПИСОК ЗІ СКРОЛОМ */
-        .view-layout {
-            height: 100%; display: flex; flex-direction: column;
-            overflow-y: auto; -webkit-overflow-scrolling: touch;
-        }
-        .view-layout::-webkit-scrollbar { width: 0; display: none; }
+        .view-layout { overflow-y: hidden; display: flex; flex-direction: column; }
 
-        /* ЗБІЛЬШЕНІ РЯДКИ ПІСЕНЬ (flex-shrink: 0 не дає їм зжиматися) */
+        /* РЯДКИ ПІСЕНЬ (Не зжимаються) */
         .menu-item {
-            flex-shrink: 0; /* ГОЛОВНИЙ ФІКС: забороняє зжимати рядки */
-            height: 40px; /* Фіксована висота рядка */
-            display: flex; align-items: center;
+            flex-shrink: 0; height: 40px; display: flex; align-items: center;
             padding: 0 10px; font-size: 14px; font-weight: 600; color: #000;
             border-bottom: 1px solid #dbdbe0; white-space: nowrap; overflow: hidden;
             text-overflow: ellipsis; background: #e4e6eb;
         }
-
-        .menu-item.active {
-            background: linear-gradient(to bottom, #428fd4, #1254a3); color: #fff; border-bottom-color: #1254a3;
-        }
+        .menu-item.active { background: linear-gradient(to bottom, #428fd4, #1254a3); color: #fff; border-bottom-color: #1254a3; }
 
         .view-now-playing {
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px; height: 100%; background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 10px; background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
-
         .album-art {
-            width: 120px !important; height: 120px !important; border-radius: 4px;
-            object-fit: cover !important; box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #999;
-            margin-bottom: 10px;
+            width: 120px; height: 120px; border-radius: 4px; object-fit: cover; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); border: 1px solid #999; margin-bottom: 10px;
         }
-
         .np-info { text-align: center; width: 100%; margin-bottom: 10px; }
         .np-title { font-weight: 700; font-size: 15px; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .np-artist { font-size: 13px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-        .progress-container {
-            width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333;
-        }
+        .progress-container { width: 94%; display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333; }
         .progress-bar-outer {
             flex-grow: 1; height: 7px; background: #d1d5db; border: 1px solid #b5b8be;
             border-radius: 3px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
         }
         .progress-bar-inner { width: 0%; height: 100%; background: linear-gradient(to bottom, #529ee6, #165ca8); }
 
-        /* ГАРМОНІЙНЕ КОЛЕСО */
+        /* ЗМЕНШЕНЕ КОЛЕСО */
         .wheel-container {
-            width: 280px; height: 280px;
+            width: 250px; height: 250px;
             background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
-            border-radius: 50%; 
-            margin-bottom: 20px; /* Відступ знизу екрана */
+            border-radius: 50%; margin-bottom: 30px; 
             position: relative; display: flex; align-items: center; justify-content: center;
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
             touch-action: none; z-index: 2;
         }
-
         body.aluminum-theme .wheel-container {
             background: radial-gradient(circle, #3a3f41 0%, #26292a 80%, #191b1c 100%);
             box-shadow: inset 0 2px 4px rgba(255,255,255,0.1), 0 6px 20px rgba(0,0,0,0.4), 0 0 0 2px #222;
@@ -115,21 +117,18 @@
 
         .wheel-label { position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #8a8e99; fill: #8a8e99; }
         body.aluminum-theme .wheel-label { color: #b0b5c2; fill: #b0b5c2; }
-
-        .label-menu { top: 22px; font-weight: 700; font-size: 15px; letter-spacing: 0.5px; }
-        .label-play { bottom: 22px; width: 28px; height: 16px; } 
-        .label-prev { left: 22px; width: 20px; height: 18px; }
-        .label-next { right: 22px; width: 20px; height: 18px; }
+        .label-menu { top: 18px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
+        .label-play { bottom: 18px; width: 24px; height: 14px; } 
+        .label-prev { left: 18px; width: 18px; height: 16px; }
+        .label-next { right: 18px; width: 18px; height: 16px; }
 
         .center-button {
-            width: 95px; height: 95px; background: #090a0c; border-radius: 50%; z-index: 10;
+            width: 85px; height: 85px; background: #090a0c; border-radius: 50%; z-index: 10;
             box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4);
         }
         .center-button:active { background: #111215; }
         body.aluminum-theme .center-button { background: #2c302e; box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 2px 6px rgba(0,0,0,0.4); }
         body.aluminum-theme .center-button:active { background: #202322; }
-
-        #youtube-player { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -139,20 +138,22 @@
     <div class="ipod-screen-container">
         <div class="screen-header">
             <span id="header-title">iPod</span>
-            <span>🔋</span>
+            <span id="header-battery">🔋</span>
         </div>
         <div class="screen-body">
-            <div class="view-layout" id="view-menu"></div>
-            <div class="view-now-playing" id="view-now-playing">
-                <img src="" id="np-cover" class="album-art" alt="Cover">
-                <div class="np-info">
-                    <div class="np-title" id="np-title">Назва</div>
-                    <div class="np-artist" id="np-artist">Артист</div>
-                </div>
-                <div class="progress-container">
-                    <span id="time-current">0:00</span>
-                    <div class="progress-bar-outer"><div class="progress-bar-inner" id="track-progress"></div></div>
-                    <span id="time-total">-0:00</span>
+            <div class="sliding-container" id="slider">
+                <div class="view-layout" id="view-menu"></div>
+                <div class="view-now-playing" id="view-now-playing">
+                    <img src="" id="np-cover" class="album-art" alt="Cover">
+                    <div class="np-info">
+                        <div class="np-title" id="np-title">Назва</div>
+                        <div class="np-artist" id="np-artist">Артист</div>
+                    </div>
+                    <div class="progress-container">
+                        <span id="time-current">0:00</span>
+                        <div class="progress-bar-outer"><div class="progress-bar-inner" id="track-progress"></div></div>
+                        <span id="time-total">-0:00</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -160,70 +161,78 @@
 
     <div class="wheel-container" id="wheel">
         <div class="wheel-label label-menu">MENU</div>
-        <div class="wheel-label label-prev"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></div>
-        <div class="wheel-label label-next"><svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg></div>
-        <div class="wheel-label label-play"><svg viewBox="0 0 36 18" width="100%" height="100%"><path d="M4 2v14l9-7z"/><path d="M19 2h3v14h-3zm6 0h3v14h-3z"/></svg></div>
+        <div class="wheel-label label-prev"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></div>
+        <div class="wheel-label label-next"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg></div>
+        <div class="wheel-label label-play"><svg viewBox="0 0 36 18"><path d="M4 2v14l9-7z"/><path d="M19 2h3v14h-3zm6 0h3v14h-3z"/></svg></div>
         <div class="center-button" id="btn-center"></div>
     </div>
 
     <script>
+        // НОВІ ТРЕКИ: Pink Floyd та Radiohead
         const defaultTracks = [
+            { id: 'jwEqXNqSkoA', title: 'Time', artist: 'Pink Floyd' },
+            { id: 'XFkzRNyygfk', title: 'Creep', artist: 'Radiohead' },
+            { id: 'u5CVsCnxyXg', title: 'No Surprises', artist: 'Radiohead' },
             { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley' },
             { id: 'jfKfPfyJRdk', title: 'Lofi Girl Beats', artist: 'Lofi Girl' },
-            { id: '9XAS9G7m0VE', title: 'Interstellar Theme', artist: 'Hans Zimmer' },
             { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' }
         ];
 
         let myTracks = [];
-        try { myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks')); } catch(e) { myTracks = []; }
-        if (!myTracks || !Array.isArray(myTracks) || myTracks.length === 0) {
-            myTracks = defaultTracks; localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
-        }
+        try { myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks')); } catch(e) {}
+        if (!myTracks || !myTracks.length) { myTracks = defaultTracks; localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks)); }
 
         let selectedIndex = 0, playingIndex = null, currentView = 'menu', player, progressInterval, touchTimeout = null;
 
-        // ВИПРАВЛЕНО: Правильне посилання на YouTube API
+        // Завантаження YouTube API
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
         document.head.appendChild(tag);
 
         function onYouTubeIframeAPIReady() {
             player = new YT.Player('youtube-player', {
-                height: '1', width: '1', videoId: '',
-                playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1 },
-                events: { 'onStateChange': e => { if (e.data === YT.PlayerState.ENDED) nextTrack(); }, 'onReady': startProgressLoop }
+                height: '10', width: '10', videoId: '',
+                playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'autoplay': 1 },
+                events: { 
+                    'onStateChange': e => { if (e.data === YT.PlayerState.ENDED) nextTrack(); }, 
+                    'onReady': startProgressLoop 
+                }
             });
         }
 
         const menuView = document.getElementById('view-menu');
+        const slider = document.getElementById('slider');
         
+        // Малює список ЛИШЕ ОДИН РАЗ
         function renderTracksMenu() {
             menuView.innerHTML = '';
-            document.getElementById('header-title').textContent = `Музика (${myTracks.length})`;
-
             myTracks.forEach((track, index) => {
                 const div = document.createElement('div');
-                div.className = `menu-item ${index === selectedIndex ? 'active' : ''}`;
+                div.className = 'menu-item';
+                div.id = `track-${index}`;
                 div.textContent = `${track.artist} - ${track.title}`;
-
-                div.addEventListener('click', () => { selectedIndex = index; renderTracksMenu(); playClickSound(); });
                 div.addEventListener('touchstart', () => { touchTimeout = setTimeout(() => askDeleteTrack(index), 1000); });
                 div.addEventListener('touchend', () => { if (touchTimeout) clearTimeout(touchTimeout); });
-
                 menuView.appendChild(div);
             });
+            updateSelectionVisuals();
+        }
 
-            // Автоскрол до обраного елемента
-            const activeEl = document.querySelector('.menu-item.active');
-            if (activeEl) {
-                // Плавний скролінг до активного елемента (поведінка справжнього iPod)
-                activeEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        // МИТТЄВЕ оновлення фокусу (ідеальний скрол)
+        function updateSelectionVisuals() {
+            const oldActive = menuView.querySelector('.menu-item.active');
+            if (oldActive) oldActive.classList.remove('active');
+            
+            const newActive = document.getElementById(`track-${selectedIndex}`);
+            if (newActive) {
+                newActive.classList.add('active');
+                newActive.scrollIntoView({ block: 'nearest' }); // Без smooth, жорсткий скрол
             }
         }
         renderTracksMenu();
 
         function askDeleteTrack(index) {
-            if (confirm(`Видалити трек "${myTracks[index].artist} - ${myTracks[index].title}"?`)) {
+            if (confirm(`Видалити трек "${myTracks[index].title}"?`)) {
                 myTracks.splice(index, 1);
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 selectedIndex = Math.max(0, Math.min(selectedIndex, myTracks.length - 1));
@@ -231,6 +240,7 @@
             }
         }
 
+        // Аудіо контекст для звуку колеса
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playClickSound() {
             if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -243,8 +253,10 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.03);
         }
 
+        // КОЛЕСО: Супер точний скрол
         const wheel = document.getElementById('wheel');
         let lastAngle = 0, angleAccumulator = 0;
+        const wheelSensitivity = 15; // Чутливість колеса
 
         const getAngle = (e) => {
             const rect = wheel.getBoundingClientRect(),
@@ -260,40 +272,44 @@
             if (delta > 180) delta -= 360; if (delta < -180) delta += 360;
             angleAccumulator += delta; lastAngle = currentAngle;
 
-            if (Math.abs(angleAccumulator) > 18) {
+            if (Math.abs(angleAccumulator) >= wheelSensitivity) {
+                const steps = Math.floor(Math.abs(angleAccumulator) / wheelSensitivity);
                 const dir = angleAccumulator > 0 ? 1 : -1;
+
                 if (currentView === 'menu') {
-                    selectedIndex = Math.max(0, Math.min(selectedIndex + dir, myTracks.length - 1));
-                    renderTracksMenu(); playClickSound();
+                    const prevIndex = selectedIndex;
+                    selectedIndex = Math.max(0, Math.min(selectedIndex + (dir * steps), myTracks.length - 1));
+                    if (prevIndex !== selectedIndex) { updateSelectionVisuals(); playClickSound(); }
                 } else if (currentView === 'nowPlaying' && player) {
-                    let newTime = Math.max(0, Math.min(player.getCurrentTime() + dir * 4, player.getDuration()));
+                    let newTime = Math.max(0, Math.min(player.getCurrentTime() + (dir * steps * 4), player.getDuration()));
                     player.seekTo(newTime, true); updateProgressBar(newTime, player.getDuration()); playClickSound();
                 }
-                angleAccumulator = 0;
+                angleAccumulator = angleAccumulator % wheelSensitivity;
             }
         });
 
+        // КНОПКИ (Кліки по колесу)
         let pauseClickCount = 0, pauseClickTimer = null;
         wheel.addEventListener('click', e => {
             const rect = wheel.getBoundingClientRect(), x = e.clientX - rect.left, y = e.clientY - rect.top;
 
-            if (x < 65 && y > 60 && y < rect.height - 60) { playClickSound(); prevTrack(); return; }
-            if (x > rect.width - 65 && y > 60 && y < rect.height - 60) { playClickSound(); nextTrack(); return; }
+            // Prev / Next
+            if (x < 60 && y > 60 && y < rect.height - 60) { playClickSound(); prevTrack(); return; }
+            if (x > rect.width - 60 && y > 60 && y < rect.height - 60) { playClickSound(); nextTrack(); return; }
+            
+            // Menu
             if (y < 60) {
                 playClickSound();
-                if (currentView === 'nowPlaying') {
-                    currentView = 'menu'; document.getElementById('view-menu').style.display = 'flex';
-                    document.getElementById('view-now-playing').style.display = 'none'; renderTracksMenu();
-                }
+                if (currentView === 'nowPlaying') switchView('menu');
                 return;
             }
+            
+            // Play/Pause (та зміна теми на 3 кліки)
             if (y > rect.height - 60) {
                 playClickSound(); pauseClickCount++;
                 if (pauseClickTimer) clearTimeout(pauseClickTimer);
                 if (pauseClickCount === 3) {
-                    document.body.classList.toggle('aluminum-theme');
-                    document.querySelector("link[rel='icon']").href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22${document.body.classList.contains('aluminum-theme') ? 'black' : 'white'}%22></text></svg>`;
-                    pauseClickCount = 0; return;
+                    document.body.classList.toggle('aluminum-theme'); pauseClickCount = 0; return;
                 }
                 pauseClickTimer = setTimeout(() => {
                     if (pauseClickCount === 1 && player) {
@@ -304,6 +320,7 @@
             }
         });
 
+        // ЦЕНТРАЛЬНА КНОПКА (Play та додавання треку)
         let centerClickCount = 0, centerClickTimer = null;
         document.getElementById('btn-center').addEventListener('click', () => {
             playClickSound(); centerClickCount++;
@@ -313,25 +330,55 @@
             centerClickTimer = setTimeout(() => {
                 if (centerClickCount === 1 && currentView === 'menu' && myTracks[selectedIndex]) {
                     if (playingIndex === selectedIndex) {
-                        currentView = 'nowPlaying'; document.getElementById('view-menu').style.display = 'none';
-                        document.getElementById('view-now-playing').style.display = 'flex'; document.getElementById('header-title').textContent = 'Now Playing';
-                    } else { playingIndex = selectedIndex; playTrack(myTracks[selectedIndex]); }
+                        switchView('nowPlaying');
+                    } else { 
+                        playingIndex = selectedIndex; 
+                        playTrack(myTracks[selectedIndex]); 
+                    }
                 }
                 centerClickCount = 0;
             }, 350);
         });
 
-        function playTrack(track) {
-            currentView = 'nowPlaying'; document.getElementById('view-menu').style.display = 'none';
-            document.getElementById('view-now-playing').style.display = 'flex'; document.getElementById('header-title').textContent = 'Now Playing';
-            document.getElementById('np-title').textContent = track.title; document.getElementById('np-artist').textContent = track.artist;
-            // ВИПРАВЛЕНО: Правильне посилання на картинку YouTube відео
-            document.getElementById('np-cover').src = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
-            if (player) { player.loadVideoById(track.id); player.playVideo(); }
+        // Анімація зміни екранів
+        function switchView(view) {
+            currentView = view;
+            if (view === 'menu') {
+                slider.style.transform = 'translateX(0)';
+                document.getElementById('header-title').textContent = 'iPod';
+            } else {
+                slider.style.transform = 'translateX(-50%)';
+                document.getElementById('header-title').textContent = 'Now Playing';
+            }
         }
 
-        function nextTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex + 1) % myTracks.length); playTrack(myTracks[playingIndex]); } }
-        function prevTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex - 1 + myTracks.length) % myTracks.length); playTrack(myTracks[playingIndex]); } }
+        function playTrack(track) {
+            switchView('nowPlaying');
+            document.getElementById('np-title').textContent = track.title; 
+            document.getElementById('np-artist').textContent = track.artist;
+            
+            const coverUrl = `https://img.youtube.com/vi/${track.id}/hqdefault.jpg`;
+            document.getElementById('np-cover').src = coverUrl;
+            
+            if (player) { player.loadVideoById(track.id); player.playVideo(); }
+
+            // ІНТЕГРАЦІЯ З ЕКРАНОМ БЛОКУВАННЯ iOS (Media Session API)
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: track.title,
+                    artist: track.artist,
+                    album: 'iPod Classic',
+                    artwork: [{ src: coverUrl, sizes: '480x360', type: 'image/jpeg' }]
+                });
+                navigator.mediaSession.setActionHandler('play', () => { player.playVideo(); if(audioCtx.state==='suspended') audioCtx.resume(); });
+                navigator.mediaSession.setActionHandler('pause', () => player.pauseVideo());
+                navigator.mediaSession.setActionHandler('previoustrack', () => prevTrack());
+                navigator.mediaSession.setActionHandler('nexttrack', () => nextTrack());
+            }
+        }
+
+        function nextTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex + 1) % myTracks.length); playTrack(myTracks[playingIndex]); updateSelectionVisuals(); } }
+        function prevTrack() { if (myTracks.length) { selectedIndex = playingIndex = (playingIndex === null ? 0 : (playingIndex - 1 + myTracks.length) % myTracks.length); playTrack(myTracks[playingIndex]); updateSelectionVisuals(); } }
 
         function startProgressLoop() {
             progressInterval = setInterval(() => {
@@ -347,7 +394,6 @@
             document.getElementById('time-current').textContent = formatTime(cur);
             document.getElementById('time-total').textContent = "-" + formatTime(dur - cur);
         }
-
         const formatTime = t => `${Math.floor(t / 60)}:${Math.floor(t % 60).toString().padStart(2, '0')}`;
 
         function addNewFlatTrack() {
@@ -356,11 +402,7 @@
             if (match && match[2].length === 11) {
                 myTracks.push({ id: match[2], artist: prompt("Введіть виконавця:") || "Unknown", title: prompt("Введіть назву пісні:") || "New Song" });
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks)); 
-                
-                // Змінюємо вибір на новий трек, щоб екран автоматично прокрутився вниз
-                selectedIndex = myTracks.length - 1;
-                
-                alert("Трек додано!"); 
+                selectedIndex = myTracks.length - 1; // Авто-фокус на новий трек
                 renderTracksMenu();
             } else alert("Посилання не розпізнано!");
         }
