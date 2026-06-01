@@ -19,24 +19,28 @@
             background-color: #000000; 
             color: #fff; font-family: -apple-system, sans-serif;
             height: 100vh; width: 100vw; overflow: hidden;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding-top: env(safe-area-inset-top);
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: flex-start; /* Притискає все до верху */
+            
+            /* Екран починається РІВНО під чілкою + 12px для естетики рамки */
+            padding-top: calc(env(safe-area-inset-top) + 12px);
             padding-bottom: env(safe-area-inset-bottom);
-            gap: 6vh; /* Ідеальна симетрична відстань між екраном і колесом */
+            
             transition: background 0.5s, color 0.5s;
             overscroll-behavior-y: none; -webkit-touch-callout: none;
         }
 
         #youtube-player { position: absolute; width: 10px; height: 10px; top: 0; left: 0; opacity: 0.01; pointer-events: none; z-index: -1; }
 
-        /* ЕКРАН (Резиновий розмір) */
+        /* ЕКРАН */
         .ipod-screen-container {
-            width: 88%; max-width: 340px; aspect-ratio: 4 / 3.6; 
+            width: 90%; max-width: 360px; aspect-ratio: 4 / 3.6; 
             background: #e4e6eb; border-radius: 6px; 
             border: 4px solid #1a1a1c; 
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.4), 0 2px 10px rgba(255,255,255,0.05);
             overflow: hidden; position: relative; color: #000; z-index: 2;
             display: flex; flex-direction: column; touch-action: none; transition: all 0.3s;
+            flex-shrink: 0;
         }
 
         .screen-header {
@@ -102,22 +106,22 @@
         .vol-bar-outer { flex-grow: 1; height: 8px; background: #ccc; border-radius: 4px; overflow: hidden; border: 1px solid #999; }
         .vol-bar-inner { width: 100%; height: 100%; background: linear-gradient(to bottom, #888, #555); }
 
-        /* КОЛЕСО (Повернуто до оригінальних кольорів + Адаптивний розмір) */
+        /* КОЛЕСО */
         .wheel-container {
-            width: min(75vw, 280px); /* Підлаштовується під будь-який телефон */
-            height: min(75vw, 280px); /* Завжди ідеально кругле */
-            /* Твій оригінальний колір: */
+            width: min(75vw, 280px); height: min(75vw, 280px);
             background: radial-gradient(circle, #2c2e33 0%, #17181c 80%, #0f1012 100%); 
             border-radius: 50%; 
             position: relative; display: flex; align-items: center; justify-content: center;
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 0 8px 25px rgba(0,0,0,0.6), 0 0 0 2px #111;
             touch-action: none; z-index: 2; transition: all 0.3s;
+            
+            /* ЦЕНТРУЄ колесо у вільному просторі під екраном */
+            margin-top: auto; 
+            margin-bottom: auto; 
         }
         
         .center-button {
-            width: 36%; height: 36%; /* Розмір кнопки залежить від розміру колеса! */
-            /* Твій оригінальний колір: */
-            background: #090a0c; 
+            width: 36%; height: 36%; background: #090a0c; 
             border-radius: 50%; z-index: 10;
             box-shadow: inset 0 1px 3px rgba(255,255,255,0.1), 0 3px 8px rgba(0,0,0,0.4); transition: all 0.3s;
         }
@@ -125,7 +129,6 @@
 
         .wheel-label { position: absolute; display: flex; align-items: center; justify-content: center; pointer-events: none; color: #8a8e99; fill: #8a8e99; transition: all 0.3s;}
         
-        /* Іконки теж підлаштовуються під розмір колеса */
         .label-menu { top: 10%; font-weight: 700; font-size: min(4vw, 15px); letter-spacing: 0.5px; }
         .label-play { bottom: 10%; width: min(6.5vw, 24px); } 
         .label-prev { left: 8%; width: min(5.5vw, 20px); }
@@ -300,12 +303,9 @@
         let pauseClickCount = 0, pauseClickTimer = null;
         wheel.addEventListener('click', e => {
             const rect = wheel.getBoundingClientRect();
-            const w = rect.width;
-            const h = rect.height;
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+            const w = rect.width; const h = rect.height;
+            const x = e.clientX - rect.left; const y = e.clientY - rect.top;
 
-            // Зони кліку тепер вираховуються у ВІДСОТКАХ (тому працюють ідеально незалежно від розміру колеса)
             if (x < w * 0.28 && y > h * 0.25 && y < h * 0.75) { playClickSound(); prevTrack(); return; }
             if (x > w * 0.72 && y > h * 0.25 && y < h * 0.75) { playClickSound(); nextTrack(); return; }
             if (y < h * 0.28) { playClickSound(); if (currentView === 'nowPlaying') switchView('menu'); return; }
