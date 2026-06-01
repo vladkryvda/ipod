@@ -7,7 +7,6 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <title> iPod Classic</title>
-    
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22white%22></text></svg>">
     
     <style>
@@ -36,9 +35,9 @@
             transition: background 0.5s ease, color 0.5s ease;
         }
 
-        /* КАСТОМНА ТЕМА: SPACE GRAY & CHROME (Елітна заміна старої світлої теми) */
+        /* КАСТОМНА ТЕМА: SPACE GRAY & CHROME */
         body.aluminum-theme {
-            background: linear-gradient(135deg, #2c302e 0%, #4a5154 50%, #23272a 100%);
+            background: linear-gradient(135deg, #2c302e 0%, #4a5154 50 nudge%, #23272a 100%);
             color: #ffffff;
             box-shadow: inset 0 0 80px rgba(0,0,0,0.6);
         }
@@ -59,7 +58,6 @@
             z-index: 2;
         }
 
-        /* Дзеркальна хромована рамка навколо екрана у кастомній темі */
         body.aluminum-theme .ipod-screen-container {
             border-color: #7f8c8d;
             box-shadow: 0 0 0 1px #bdc3c7, inset 0 3px 10px rgba(0,0,0,0.4), 0 4px 15px rgba(0,0,0,0.5);
@@ -118,25 +116,20 @@
             background: linear-gradient(to bottom, #f3f4f6, #dcdde2);
         }
 
-        .album-art-container {
-            width: 145px;
-            height: 145px;
-            border-radius: 4px;
-            overflow: hidden;
-            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
-            border: 1px solid #999;
-        }
-
+        /* ФІКС ОБКЛАДИНКИ: ідеальний великий квадрат без жодних рамок */
         .album-art {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+            width: 155px !important;
+            height: 155px !important;
+            border-radius: 4px;
+            object-fit: cover !important;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+            border: 1px solid #999;
         }
 
         .np-info { 
             text-align: center; 
             width: 100%; 
-            margin-top: 4px;
+            margin-top: 2px;
         }
         
         .np-title { 
@@ -156,14 +149,14 @@
 
         /* ПРОГРЕС-БАР */
         .progress-container {
-            width: 90%;
+            width: 92%;
             display: flex;
             align-items: center;
             gap: 8px;
             font-size: 11px;
             font-weight: bold;
             color: #333;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         
         .progress-bar-outer {
@@ -201,7 +194,6 @@
             z-index: 2;
         }
 
-        /* Зміна кольору колеса під тему Space Gray */
         body.aluminum-theme .wheel-container {
             background: radial-gradient(circle, #3a3f41 0%, #26292a 80%, #191b1c 100%);
             box-shadow: inset 0 2px 5px rgba(255,255,255,0.1), 
@@ -209,39 +201,38 @@
                         0 0 0 2px #222;
         }
 
-        /* ЗАБОРОНА СИСТЕМНИХ ЕМОДЗІ (ФІКС КРИВИХ СИМВОЛІВ) */
+        /* ЕЛЕМЕНТИ КЕРУВАННЯ (Збереження єдиного стилю Apple) */
         .wheel-label {
             position: absolute;
-            color: #8a8e99;
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            transition: color 0.5s ease;
+            transition: fill 0.5s ease, color 0.5s ease;
             
-            /* Наступні два рядки примусово вимикають кольорові емодзі iOS, роблячи їх строгими іконками */
-            color: inherit;
-            text-shadow: none;
+            /* Єдиний фірмовий колір оригінального iPod для всіх кнопок */
+            color: #8a8e99;
+            fill: #8a8e99;
         }
 
         body.aluminum-theme .wheel-label {
             color: #b0b5c2;
+            fill: #b0b5c2;
         }
 
+        /* Напис MENU */
         .label-menu { 
-            top: 24px; 
+            top: 25px; 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-weight: 700;
             font-size: 14px;
             letter-spacing: 0.5px;
-            color: #8a8e99 !important; /* Меню завжди залишається текстом */
         }
-        body.aluminum-theme .label-menu { color: #b0b5c2 !important; }
         
-        /* Розміри та розташування векторних кнопок */
-        .label-play { bottom: 24px; font-size: 15px; }
-        .label-prev { left: 26px; font-size: 15px; }
-        .label-next { right: 26px; font-size: 15px; }
+        /* Векторні SVG-кнопки (Ніколи не перетворяться на емодзі) */
+        .label-play { bottom: 25px; width: 18px; height: 14px; }
+        .label-prev { left: 25px; width: 16px; height: 14px; }
+        .label-next { right: 25px; width: 16px; height: 14px; }
 
         /* Внутрішня кнопка Select */
         .center-button {
@@ -279,9 +270,7 @@
             <div class="view-layout" id="view-menu"></div>
 
             <div class="view-now-playing" id="view-now-playing">
-                <div class="album-art-container">
-                    <img src="" id="np-cover" class="album-art" alt="Cover">
-                </div>
+                <img src="" id="np-cover" class="album-art" alt="Cover">
                 <div class="np-info">
                     <div class="np-title" id="np-title">Назва</div>
                     <div class="np-artist" id="np-artist">Артист</div>
@@ -300,13 +289,24 @@
 
     <div class="wheel-container" id="wheel">
         <div class="wheel-label label-menu">MENU</div>
-        <div class="wheel-label label-prev">⏮&#xFE0E;</div>
-        <div class="wheel-label label-next">⏭&#xFE0E;</div>
-        <div class="wheel-label label-play">▶⏸&#xFE0E;</div>
+        
+        <div class="wheel-label label-prev">
+            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </div>
+        
+        <div class="wheel-label label-next">
+            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M16 6h2v12h-2zm-10.5 12l8.5-6-8.5-6z"/></svg>
+        </div>
+        
+        <div class="wheel-label label-play">
+            <svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        
         <div class="center-button" id="btn-center"></div>
     </div>
 
     <script>
+        // Базова медіатека, яка вмикається ЛИШЕ якщо телефон повністю пустий
         const defaultTracks = [
             { id: 'dQw4w9WgXcQ', title: 'Never Gonna Give You Up', artist: 'Rick Astley' },
             { id: 'jfKfPfyJRdk', title: 'Lofi Girl Beats', artist: 'Lofi Girl' },
@@ -314,10 +314,17 @@
             { id: 'V1Pl8CzNzCw', title: 'Blinding Lights', artist: 'The Weeknd' }
         ];
 
-        let myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks')) || defaultTracks;
+        // ЗАХИСТ ВІД СКИДАННЯ: Спочатку жорстко перевіряємо localStorage
+        let myTracks = JSON.parse(localStorage.getItem('ipod_flat_tracks'));
+        
+        // Якщо в пам'яті нічого нема (перший запуск плеєра), то додаємо базу дефолтних треків
+        if (!myTracks || myTracks.length === 0) {
+            myTracks = defaultTracks;
+            localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
+        }
 
         let selectedIndex = 0;
-        let playingIndex = null; // Початково нічого не грає
+        let playingIndex = null;
         let currentView = 'menu';
         
         let player;
@@ -464,10 +471,8 @@
                 if (pauseClickTimer) clearTimeout(pauseClickTimer);
                 
                 if (pauseClickCount === 3) {
-                    // Зміна теми на оновлений Space Gray
                     document.body.classList.toggle('aluminum-theme');
                     
-                    // Зміна кольору значка у вкладці відповідно до обраної теми
                     const isSpaceGray = document.body.classList.contains('aluminum-theme');
                     const iconColor = isSpaceGray ? 'black' : 'white';
                     document.querySelector("link[rel='icon']").href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2280%22 font-size=%2280%22 fill=%22${iconColor}%22></text></svg>`;
@@ -504,7 +509,6 @@
             centerClickTimer = setTimeout(() => {
                 if (centerClickCount === 1) {
                     if (currentView === 'menu' && myTracks[selectedIndex]) {
-                        // ФІКС ПЕРЕЗАПУСКУ: якщо трек вже грає, просто відкриваємо екран без loadVideo
                         if (playingIndex === selectedIndex) {
                             currentView = 'nowPlaying';
                             document.getElementById('view-menu').style.display = 'none';
@@ -538,7 +542,6 @@
 
         function nextTrack() {
             if (myTracks.length > 0) {
-                // Якщо нічого не грало, ставимо 0, інакше наступний
                 playingIndex = (playingIndex === null) ? 0 : (playingIndex + 1) % myTracks.length;
                 selectedIndex = playingIndex;
                 playTrack(myTracks[playingIndex]);
@@ -588,6 +591,8 @@
                 const artist = prompt("Введіть виконавця:") || "Unknown Artist";
                 
                 myTracks.push({ id: videoId, title: title, artist: artist });
+                
+                // Перезаписуємо сховище
                 localStorage.setItem('ipod_flat_tracks', JSON.stringify(myTracks));
                 
                 alert("Трек успішно додано до загального списку!");
